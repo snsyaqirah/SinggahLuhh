@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { MapPin, ArrowLeft, Loader2 } from "lucide-react";
-=======
 import { useState, useRef } from "react";
 import { MapPin, ArrowLeft, LocateFixed, Search, X, Loader2 } from "lucide-react";
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,17 +10,6 @@ import Footer from "@/components/Footer";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-<<<<<<< HEAD
-import { useMutation } from "@tanstack/react-query";
-import { masjidsApi } from "@/lib/api";
-import type { MasjidCreateForm, MasjidSummary } from "@/types";
-
-const STATES = [
-  "Johor", "Kedah", "Kelantan", "Kuala Lumpur", "Melaka", "Negeri Sembilan",
-  "Pahang", "Penang", "Perak", "Perlis", "Putrajaya", "Sabah", "Sarawak",
-  "Selangor", "Terengganu",
-];
-=======
 import { masjidsApi, facilitiesApi, ApiError } from "@/lib/api";
 import { MALAYSIA_STATES } from "@/lib/constants";
 
@@ -36,31 +20,11 @@ type NominatimResult = {
   lon: string;
   name?: string;
 };
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
 const AddMasjid = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-<<<<<<< HEAD
-
-  const [form, setForm] = useState({
-    name: "",
-    address: "",
-    city: "",
-    state: "",
-    postcode: "",
-    latitude: "",
-    longitude: "",
-    description: "",
-    // Facilities
-    aircond: false,
-    wifi: false,
-    wheelchair: false,
-    sisterhood: false,
-    parking: false,
-    ablution: false,
-=======
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
   const [placeQuery, setPlaceQuery] = useState("");
@@ -141,63 +105,10 @@ const AddMasjid = () => {
     near_bas: false,
     near_lrt: false,
     near_mrt: false,
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
   });
 
   if (!user) return <Navigate to="/auth" replace />;
 
-<<<<<<< HEAD
-  const createMutation = useMutation({
-    mutationFn: (body: MasjidCreateForm) =>
-      masjidsApi.create(body) as Promise<MasjidSummary>,
-    onSuccess: (created) => {
-      toast({
-        title: "Masjid berjaya ditambah!",
-        description: `${form.name} kini boleh dilihat oleh komuniti. Ia akan disahkan selepas 3 pengesahan.`,
-      });
-      navigate(`/masjid/${(created as any).slug ?? ""}`);
-    },
-    onError: () => {
-      toast({
-        title: "Gagal menambah masjid",
-        description: "Sila semak semua maklumat dan cuba lagi.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const lat = parseFloat(form.latitude);
-    const lng = parseFloat(form.longitude);
-    if (isNaN(lat) || isNaN(lng)) {
-      toast({ title: "Koordinat tidak sah", description: "Masukkan latitude dan longitude yang betul.", variant: "destructive" });
-      return;
-    }
-
-    const facilities: Record<string, boolean> = {};
-    if (form.aircond) facilities.aircond = true;
-    if (form.wifi) facilities.wifi = true;
-    if (form.wheelchair) facilities.wheelchair = true;
-    if (form.sisterhood) facilities.sisterhood = true;
-    if (form.parking) facilities.parking = true;
-    if (form.ablution) facilities.ablution = true;
-
-    createMutation.mutate({
-      name: form.name,
-      address: form.address,
-      city: form.city,
-      state: form.state,
-      postcode: form.postcode || undefined,
-      country: "Malaysia",
-      latitude: lat,
-      longitude: lng,
-      description: form.description || undefined,
-      facilities: Object.keys(facilities).length > 0 ? facilities : undefined,
-    });
-  };
-
-=======
   const detectLocation = () => {
     if (!navigator.geolocation) {
       toast({ title: "GPS tidak disokong", variant: "destructive" });
@@ -320,7 +231,6 @@ const AddMasjid = () => {
     }
   };
 
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -356,22 +266,6 @@ const AddMasjid = () => {
                 className="rounded-xl bg-background" required />
             </div>
 
-<<<<<<< HEAD
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="city" className="font-medium">Bandar / Kawasan *</Label>
-                <Input id="city" placeholder="cth: Shah Alam" value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value })}
-                  className="rounded-xl bg-background" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="state" className="font-medium">Negeri *</Label>
-                <select id="state" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })}
-                  className="w-full rounded-xl border bg-background px-3 py-2 text-sm" required>
-                  <option value="">Pilih negeri</option>
-                  {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-=======
             <div className="space-y-2">
               <Label htmlFor="address" className="font-medium">Alamat Penuh *</Label>
               <Input id="address" placeholder="cth: No 1, Jalan Masjid, Taman Sri Muda, 40150 Shah Alam, Selangor" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="rounded-xl bg-background" required />
@@ -422,7 +316,6 @@ const AddMasjid = () => {
                 <div className="h-px flex-1 bg-border" />
                 <span className="text-xs text-muted-foreground">atau</span>
                 <div className="h-px flex-1 bg-border" />
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
               </div>
 
               <Button type="button" variant="outline" className="w-full rounded-xl gap-2" onClick={detectLocation} disabled={locating}>
@@ -483,38 +376,6 @@ const AddMasjid = () => {
           </div>
 
           {/* Facilities */}
-<<<<<<< HEAD
-          <div className="rounded-2xl border bg-card p-6 space-y-4">
-            <h3 className="font-serif text-base font-semibold">Kemudahan</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { key: "wheelchair", label: "Mesra OKU (lift/wheelchair)" },
-                { key: "sisterhood", label: "Ruang Solat Wanita" },
-                { key: "aircond", label: "Aircon" },
-                { key: "wifi", label: "WiFi" },
-                { key: "parking", label: "Tempat Letak Kereta" },
-                { key: "ablution", label: "Tempat Wudhu" },
-              ].map((item) => (
-                <label key={item.key} className="flex items-center gap-2 text-sm cursor-pointer rounded-xl border p-3 hover:bg-secondary/50 transition-colors">
-                  <Checkbox
-                    checked={form[item.key as keyof typeof form] as boolean}
-                    onCheckedChange={(c) => setForm({ ...form, [item.key]: !!c })}
-                  />
-                  {item.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <Button type="submit" size="lg"
-            className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-6 text-base"
-            disabled={createMutation.isPending}>
-            {createMutation.isPending ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Menghantar...</>
-            ) : (
-              <><MapPin className="mr-2 h-5 w-5" />Kongsi Masjid Ini</>
-            )}
-=======
           <div className="rounded-2xl border bg-card p-6 space-y-6">
             <h3 className="font-serif text-base font-semibold">Kemudahan (Opsyen)</h3>
 
@@ -730,7 +591,6 @@ const AddMasjid = () => {
           <Button type="submit" size="lg" disabled={submitting} className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-6 text-base">
             <MapPin className="mr-2 h-5 w-5" />
             {submitting ? "Menyimpan..." : "Kongsi Masjid Ini"}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">

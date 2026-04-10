@@ -1,18 +1,11 @@
 import { useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-<<<<<<< HEAD
-  MapPin, CheckCircle, ArrowLeft, Users, Star, Car, Train,
-  Accessibility, Wind, Wifi, ChevronDown, ChevronUp, Loader2,
-  ExternalLink,
-} from "lucide-react";
-=======
   MapPin, CheckCircle, ArrowLeft, Users, Wind, Cat,
   Utensils, ThumbsUp, ThumbsDown, Loader2, Moon, Camera,
   Flag, X, Plus, Trash2, Car, Droplets, BookOpen, AlertTriangle,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -30,35 +23,6 @@ import {
 } from "@/components/ui/sheet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-<<<<<<< HEAD
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { masjidsApi, visitsApi } from "@/lib/api";
-import type { MasjidDetail as MasjidDetailType, Review, PaginatedResponse, PrayerType } from "@/types";
-
-const StarRating = ({
-  rating,
-  onRate,
-  interactive = false,
-}: {
-  rating: number;
-  onRate?: (r: number) => void;
-  interactive?: boolean;
-}) => (
-  <div className="flex gap-0.5">
-    {[1, 2, 3, 4, 5].map((i) => (
-      <Star
-        key={i}
-        className={`h-5 w-5 transition-colors ${
-          i <= rating ? "text-accent fill-accent" : "text-muted-foreground/30"
-        } ${interactive ? "cursor-pointer hover:text-accent" : ""}`}
-        onClick={() => interactive && onRate?.(i)}
-      />
-    ))}
-  </div>
-);
-=======
 import {
   masjidsApi, verificationsApi, checkinsApi, liveUpdatesApi,
   facilitiesApi, mediaApi, profileApi, ApiError,
@@ -120,7 +84,6 @@ const defaultFacForm = {
   near_lrt: false,
   near_mrt: false,
 };
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
 const PRAYER_LABELS: Record<PrayerType, string> = {
   subuh: "Subuh", zohor: "Zohor", asar: "Asar",
@@ -129,81 +92,12 @@ const PRAYER_LABELS: Record<PrayerType, string> = {
 };
 
 const MasjidDetail = () => {
-<<<<<<< HEAD
-  const { slug } = useParams<{ slug: string }>();
-=======
   const { id: slug } = useParams<{ id: string }>();
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-<<<<<<< HEAD
-  const [showAllReviews, setShowAllReviews] = useState(false);
-  const [reviewForm, setReviewForm] = useState({ rating: 0, comment: "" });
-  const [showReviewForm, setShowReviewForm] = useState(false);
-
-  const { data: masjid, isLoading, isError } = useQuery<MasjidDetailType>({
-    queryKey: ["masjid", slug],
-    queryFn: () => masjidsApi.get(slug!) as Promise<MasjidDetailType>,
-    enabled: !!slug,
-  });
-
-  const { data: reviewsData } = useQuery<PaginatedResponse<Review>>({
-    queryKey: ["masjid-reviews", masjid?.id],
-    queryFn: () => masjidsApi.reviews(String(masjid!.id)) as Promise<PaginatedResponse<Review>>,
-    enabled: !!masjid?.id,
-  });
-
-  const reviews = reviewsData?.items ?? [];
-  const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
-
-  const checkInMutation = useMutation({
-    mutationFn: (prayerType: PrayerType) =>
-      visitsApi.checkIn({
-        masjidId: String(masjid!.id),
-        prayerType,
-        visitedAt: new Date().toISOString(),
-        isRamadan: false,
-      }),
-    onSuccess: (_, prayerType) => {
-      toast({ title: `${PRAYER_LABELS[prayerType]} direkodkan!`, description: `Kunjungan anda ke ${masjid?.name} telah disimpan.` });
-      queryClient.invalidateQueries({ queryKey: ["visits"] });
-    },
-    onError: () => toast({ title: "Gagal merekod", description: "Sila cuba lagi.", variant: "destructive" }),
-  });
-
-  const verifyMutation = useMutation({
-    mutationFn: () => masjidsApi.verify(String(masjid!.id), "upvote"),
-    onSuccess: () => {
-      toast({ title: "Terima kasih!", description: "Pengesahan anda telah direkodkan." });
-      queryClient.invalidateQueries({ queryKey: ["masjid", slug] });
-    },
-    onError: () => toast({ title: "Gagal mengesahkan", description: "Sila cuba lagi.", variant: "destructive" }),
-  });
-
-  const reviewMutation = useMutation({
-    mutationFn: () =>
-      masjidsApi.addReview(String(masjid!.id), {
-        rating: reviewForm.rating,
-        comment: reviewForm.comment || undefined,
-      }),
-    onSuccess: () => {
-      toast({ title: "Review dihantar!", description: "Terima kasih atas sumbangan anda." });
-      setReviewForm({ rating: 0, comment: "" });
-      setShowReviewForm(false);
-      queryClient.invalidateQueries({ queryKey: ["masjid-reviews", masjid?.id] });
-    },
-    onError: () => toast({ title: "Gagal menghantar review", description: "Sila cuba lagi.", variant: "destructive" }),
-  });
-
-  const requireLogin = (action: string): boolean => {
-    if (!user) {
-      toast({ title: "Log masuk diperlukan", description: `Sila log masuk untuk ${action}.`, variant: "destructive" });
-      navigate("/auth");
-      return true;
-=======
   const [checkingIn, setCheckingIn] = useState(false);
   // Report dialog
   const [reportOpen, setReportOpen] = useState(false);
@@ -443,7 +337,6 @@ const MasjidDetail = () => {
     if (!user) { toast({ title: "Log masuk diperlukan", variant: "destructive" }); navigate("/auth"); return; }
     if (!navigator.geolocation) {
       toast({ title: "GPS tidak disokong", variant: "destructive" }); return;
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
     }
     setCheckingIn(true);
     navigator.geolocation.getCurrentPosition(
@@ -468,46 +361,6 @@ const MasjidDetail = () => {
     );
   };
 
-<<<<<<< HEAD
-  const handleTrack = (type: PrayerType) => {
-    if (requireLogin(`merekod ${PRAYER_LABELS[type]}`)) return;
-    checkInMutation.mutate(type);
-  };
-
-  const handleVerify = () => {
-    if (requireLogin("mengesahkan masjid")) return;
-    verifyMutation.mutate();
-  };
-
-  const handleReviewSubmit = () => {
-    if (requireLogin("menulis review")) return;
-    if (reviewForm.rating === 0) {
-      toast({ title: "Rating diperlukan", description: "Sila bagi rating bintang.", variant: "destructive" });
-      return;
-    }
-    reviewMutation.mutate();
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (isError || !masjid) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <h2 className="font-serif text-2xl font-bold">Masjid tidak dijumpai</h2>
-          <Button asChild className="mt-4 rounded-xl"><Link to="/browse">Kembali ke senarai</Link></Button>
-        </div>
-        <Footer />
-=======
   const handleVote = (type: "upvote" | "downvote") => {
     if (!user) { toast({ title: "Log masuk diperlukan", variant: "destructive" }); navigate("/auth"); return; }
     if (type === "downvote") {
@@ -564,15 +417,10 @@ const MasjidDetail = () => {
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="font-serif text-2xl font-bold">Masjid tidak dijumpai</h2>
         <Button asChild className="mt-4 rounded-xl"><Link to="/browse">Kembali ke senarai</Link></Button>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
       </div>
     <Footer /></div>
   );
 
-<<<<<<< HEAD
-  const isVerified = masjid.status === "verified";
-  const facilities = (masjid.facilities ?? {}) as Record<string, boolean>;
-=======
   const m = masjid as unknown as Masjid;
   const f = (facilitiesData as Facilities | null) ?? null;
   const isVerified = m.status === "verified";
@@ -584,36 +432,23 @@ const MasjidDetail = () => {
   const qrItems = allQrItems.filter((i) => i.isVerified || i.createdBy === user?.id);
   const pendingQrCount = allQrItems.filter((i) => !i.isVerified && i.createdBy === user?.id).length;
   const mainPhoto = photos.find((i) => i.mediaType === "main_photo");
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-<<<<<<< HEAD
-        <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" />Kembali ke senarai
-=======
         <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4" /> Kembali ke senarai
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </Link>
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* ── Main column ── */}
           <div className="lg:col-span-2 space-y-6">
-<<<<<<< HEAD
-            {/* Image */}
-            <div className="h-64 md:h-80 rounded-2xl overflow-hidden bg-secondary flex items-center justify-center">
-              {masjid.coverImageUrl ? (
-                <img src={masjid.coverImageUrl} alt={masjid.name} className="h-full w-full object-cover" />
-=======
             {/* Photo / hero */}
             <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden bg-secondary">
               {mainPhoto ? (
                 <img src={mainPhoto.url} alt={m.name} className="h-full w-full object-cover" />
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-2">
                   <Moon className="h-16 w-16 text-muted-foreground/20" />
@@ -653,41 +488,22 @@ const MasjidDetail = () => {
             {/* Info */}
             <div>
               <div className="flex items-start gap-3 flex-wrap">
-<<<<<<< HEAD
-                <h1 className="font-serif text-3xl font-bold text-foreground">{masjid.name}</h1>
-=======
                 <h1 className="font-serif text-3xl font-bold text-foreground">{toTitleCase(m.name)}</h1>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                 {isVerified ? (
                   <Badge className="bg-accent text-accent-foreground gap-1 font-sans mt-1">
                     <CheckCircle className="h-3 w-3" /> Disahkan
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="font-sans mt-1">
-<<<<<<< HEAD
-                    Belum disahkan ({masjid.verificationCount}/3)
-=======
                     Belum disahkan ({(verifyStatus as VerificationStatus | undefined)?.verification_count ?? m.verification_count}/3)
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                   </Badge>
                 )}
               </div>
               <p className="mt-2 flex items-center gap-1.5 text-muted-foreground">
-<<<<<<< HEAD
-                <MapPin className="h-4 w-4" /> {masjid.address}, {masjid.city}, {masjid.state}
-              </p>
-              {masjid.averageRating != null && (
-                <div className="mt-2 flex items-center gap-2">
-                  <StarRating rating={Math.round(masjid.averageRating)} />
-                  <span className="text-sm font-semibold text-foreground">{masjid.averageRating.toFixed(1)}</span>
-                  <span className="text-xs text-muted-foreground">({masjid.reviewCount} review)</span>
-                </div>
-=======
                 <MapPin className="h-4 w-4" /> {m.address}
               </p>
               {m.description && (
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.description}</p>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
               )}
               {masjid.description && (
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{masjid.description}</p>
@@ -700,44 +516,6 @@ const MasjidDetail = () => {
               )}
             </div>
 
-<<<<<<< HEAD
-            {/* Facilities Grid */}
-            {Object.values(facilities).some(Boolean) && (
-              <div className="rounded-2xl border bg-card p-6">
-                <h3 className="font-serif text-lg font-semibold mb-4">Kemudahan & Info</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {facilities.aircond && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <Wind className="h-4 w-4 text-primary" /><p className="font-medium text-foreground">Aircon</p>
-                    </div>
-                  )}
-                  {facilities.wifi && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <Wifi className="h-4 w-4 text-primary" /><p className="font-medium text-foreground">WiFi</p>
-                    </div>
-                  )}
-                  {facilities.wheelchair && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <Accessibility className="h-4 w-4 text-primary" />
-                      <div><p className="font-medium text-foreground">Mesra OKU</p><p className="text-xs text-muted-foreground">Lift / kerusi roda</p></div>
-                    </div>
-                  )}
-                  {facilities.sisterhood && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <Users className="h-4 w-4 text-primary" /><p className="font-medium text-foreground">Ruang Wanita</p>
-                    </div>
-                  )}
-                  {facilities.parking && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <Car className="h-4 w-4 text-primary" /><p className="font-medium text-foreground">Ada Parking</p>
-                    </div>
-                  )}
-                  {facilities.ablution && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/5 p-3">
-                      <CheckCircle className="h-4 w-4 text-primary" /><p className="font-medium text-foreground">Tempat Wudhu</p>
-                    </div>
-                  )}
-=======
             {/* Live Status */}
             {live && (live.crowd_level || live.saf_status || live.parking_status || live.iftar_menu) && (
               <div className="rounded-2xl border bg-card p-6">
@@ -747,7 +525,6 @@ const MasjidDetail = () => {
                   {live.saf_status && <div className="rounded-xl bg-primary/5 p-3"><p className="text-xs text-muted-foreground">Status Saf</p><p className="font-medium">{live.saf_status}</p></div>}
                   {live.parking_status && <div className="rounded-xl bg-primary/5 p-3"><p className="text-xs text-muted-foreground">Parking</p><p className="font-medium">{live.parking_status}</p></div>}
                   {live.iftar_menu && <div className="rounded-xl bg-primary/5 p-3"><p className="text-xs text-muted-foreground">Menu Iftar</p><p className="font-medium">{live.iftar_menu}</p></div>}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                 </div>
               </div>
             )}
@@ -755,72 +532,15 @@ const MasjidDetail = () => {
             {/* Facilities */}
             <div className="rounded-2xl border bg-card p-6">
               <div className="flex items-center justify-between mb-4">
-<<<<<<< HEAD
-                <h3 className="font-serif text-lg font-semibold">Review Komuniti ({masjid.reviewCount})</h3>
-                {user && (
-                  <Button variant="outline" size="sm" className="rounded-lg text-xs"
-                    onClick={() => setShowReviewForm(!showReviewForm)}>
-                    Tulis Review
-=======
                 <h3 className="font-serif text-lg font-semibold">Kemudahan & Info</h3>
                 {user && (
                   <Button variant="outline" size="sm" onClick={openFacSheet} className="rounded-lg gap-2 text-xs">
                     <Plus className="h-3.5 w-3.5" />
                     {f ? "Kemaskini" : "Tambah Kemudahan"}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                   </Button>
                 )}
               </div>
 
-<<<<<<< HEAD
-              {showReviewForm && (
-                <div className="mb-6 rounded-xl border bg-background p-4 space-y-4">
-                  <div>
-                    <p className="text-sm font-medium mb-2">Rating anda</p>
-                    <StarRating rating={reviewForm.rating}
-                      onRate={(r) => setReviewForm({ ...reviewForm, rating: r })} interactive />
-                  </div>
-                  <Textarea
-                    placeholder="Kongsi pengalaman anda di masjid ni..."
-                    value={reviewForm.comment}
-                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    className="rounded-xl bg-card min-h-[80px]"
-                    maxLength={500}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={handleReviewSubmit} size="sm" className="rounded-lg"
-                      disabled={reviewMutation.isPending}>
-                      {reviewMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Hantar Review"}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setShowReviewForm(false)} className="rounded-lg">Batal</Button>
-                  </div>
-                </div>
-              )}
-
-              {reviews.length > 0 ? (
-                <div className="space-y-4">
-                  {displayedReviews.map((review) => (
-                    <div key={review.id} className="rounded-xl border bg-background p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                            U
-                          </div>
-                          <p className="text-xs text-muted-foreground">{new Date(review.createdAt).toLocaleDateString("ms-MY")}</p>
-                        </div>
-                        <StarRating rating={review.rating} />
-                      </div>
-                      {review.comment && <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>}
-                    </div>
-                  ))}
-                  {reviews.length > 3 && (
-                    <button onClick={() => setShowAllReviews(!showAllReviews)}
-                      className="flex items-center gap-1 text-sm text-primary font-medium hover:underline">
-                      {showAllReviews
-                        ? <><ChevronUp className="h-4 w-4" /> Tutup</>
-                        : <><ChevronDown className="h-4 w-4" /> Lihat semua {reviews.length} review</>}
-                    </button>
-=======
               {!f ? (
                 <div className="py-8 text-center">
                   <p className="text-muted-foreground text-sm">Belum ada maklumat kemudahan.</p>
@@ -832,7 +552,6 @@ const MasjidDetail = () => {
                     <p className="mt-2 text-xs text-muted-foreground">
                       <Link to="/auth" className="text-primary underline">Log masuk</Link> untuk tambah kemudahan
                     </p>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                   )}
                 </div>
               ) : (
@@ -1033,18 +752,6 @@ const MasjidDetail = () => {
               <h3 className="font-serif text-lg font-semibold mb-4">Statistik</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-<<<<<<< HEAD
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{masjid.visitCount}</p>
-                    <p className="text-xs text-muted-foreground">Jumlah kunjungan</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-=======
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
                     <CheckCircle className="h-5 w-5 text-accent" />
                   </div>
@@ -1058,24 +765,6 @@ const MasjidDetail = () => {
 
             {/* Check-in */}
             <div className="rounded-2xl border bg-card p-4 space-y-2">
-<<<<<<< HEAD
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Rekod Kunjungan</p>
-              {(["zohor", "asar", "maghrib", "isyak", "jumaat", "terawih", "iftar"] as PrayerType[]).map((type, i) => (
-                <Button key={type} onClick={() => handleTrack(type)}
-                  variant={i === 0 ? "default" : "outline"}
-                  className="w-full rounded-xl font-semibold py-5 text-sm"
-                  disabled={checkInMutation.isPending}>
-                  {PRAYER_LABELS[type]}
-                </Button>
-              ))}
-            </div>
-
-            {!isVerified && (
-              <Button onClick={handleVerify} variant="outline"
-                className="w-full rounded-xl text-accent border-accent/30 hover:bg-accent/10 font-semibold py-6"
-                disabled={verifyMutation.isPending}>
-                {verifyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sahkan masjid ini betul"}
-=======
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Check-in (GPS diperlukan)
               </p>
@@ -1111,7 +800,6 @@ const MasjidDetail = () => {
                 className="w-full gap-2 text-muted-foreground hover:text-destructive justify-start px-4"
               >
                 <Flag className="h-4 w-4" /> Laporkan Masjid Ini
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
               </Button>
             )}
 

@@ -1,32 +1,10 @@
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-import { MapPin, Star, ArrowRight, Users, Compass, Loader2 } from "lucide-react";
-=======
 import { MapPin, Moon, Star, ArrowRight, Users, Compass } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MasjidCard from "@/components/MasjidCard";
-<<<<<<< HEAD
-import { useQuery } from "@tanstack/react-query";
-import { masjidsApi } from "@/lib/api";
-import type { PaginatedResponse, MasjidSummary } from "@/types";
-import heroImage from "@/assets/hero-mosque.jpg";
-
-const Index = () => {
-  const { data, isLoading } = useQuery<PaginatedResponse<MasjidSummary>>({
-    queryKey: ["masjids", "featured"],
-    queryFn: () =>
-      masjidsApi.list({ status: "verified", pageSize: 3 }) as Promise<
-        PaginatedResponse<MasjidSummary>
-      >,
-  });
-
-  const featuredMasjids = data?.items ?? [];
-  const totalMasjids = data?.total ?? 0;
-=======
 import { masjidsApi, statsApi } from "@/lib/api";
 import type { Masjid } from "@/types";
 import heroImage from "@/assets/hero-mosque.jpg";
@@ -43,7 +21,6 @@ const Index = () => {
     queryFn: () => statsApi.public(),
     staleTime: 5 * 60 * 1000, // 5 min cache
   });
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,12 +31,8 @@ const Index = () => {
           <img src={heroImage} alt="Masjid yang indah" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/40" />
         </div>
-<<<<<<< HEAD
-        <div className="relative container mx-auto px-4 py-24 md:py-36">
-=======
 
         <div className="relative container mx-auto px-4 py-14 md:py-24">
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
           <div className="max-w-2xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-primary-foreground backdrop-blur-sm">
               <Compass className="h-4 w-4" />
@@ -90,43 +63,25 @@ const Index = () => {
         <div className="container mx-auto grid grid-cols-3 gap-4 px-4 py-5 text-center">
           <div>
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
-<<<<<<< HEAD
-              {isLoading ? "..." : totalMasjids}
-=======
               {publicStats?.total_masjids ?? "—"}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
             </p>
             <p className="mt-1 text-xs text-muted-foreground md:text-sm">Masjid Didaftarkan</p>
           </div>
           <div>
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
-<<<<<<< HEAD
-              {isLoading ? "..." : featuredMasjids.reduce((s, m) => s + m.visitCount, 0) + "+"}
-=======
               {publicStats ? (publicStats.total_visits > 0 ? `${publicStats.total_visits}+` : publicStats.total_visits) : "—"}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
             </p>
             <p className="mt-1 text-xs text-muted-foreground md:text-sm">Kunjungan Direkodkan</p>
           </div>
           <div>
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
-<<<<<<< HEAD
-              {isLoading ? "..." : featuredMasjids.filter(m => m.status === "verified").length}
-=======
               {publicStats?.verified_masjids ?? "—"}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
             </p>
             <p className="mt-1 text-xs text-muted-foreground md:text-sm">Masjid Disahkan</p>
           </div>
         </div>
       </section>
 
-<<<<<<< HEAD
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">Macam mana ia berfungsi?</h2>
-          <p className="mt-3 text-muted-foreground max-w-md mx-auto">Tiga langkah mudah untuk mula menjejaki masjid anda</p>
-=======
       {/* How it Works */}
       <section className="container mx-auto px-4 py-10 md:py-16">
           <div className="text-center mb-8">
@@ -136,7 +91,6 @@ const Index = () => {
           <p className="mt-3 text-muted-foreground max-w-md mx-auto">
             Tiga langkah mudah untuk mula menjejaki masjid anda
           </p>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
         <div className="grid gap-8 md:grid-cols-3">
           {[
@@ -167,17 +121,6 @@ const Index = () => {
               <Link to="/browse">Lihat semua<ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           </div>
-<<<<<<< HEAD
-          {isLoading ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
-          ) : featuredMasjids.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredMasjids.map((masjid) => <MasjidCard key={masjid.id} masjid={masjid} />)}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              Belum ada masjid disahkan. <Link to="/add" className="text-primary font-semibold hover:underline">Tambah yang pertama!</Link>
-=======
 
           {featuredMasjids.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -200,18 +143,13 @@ const Index = () => {
                   Tambah Masjid
                 </Link>
               </Button>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
             </div>
           )}
         </div>
       </section>
 
-<<<<<<< HEAD
-      <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-=======
       {/* CTA */}
       <section className="container mx-auto px-4 py-10 md:py-16 text-center">
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         <div className="mx-auto max-w-lg rounded-2xl border bg-card p-8 md:p-12">
           <Compass className="mx-auto h-10 w-10 text-accent mb-4" />
           <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">Masjid mana anda dah singgah?</h2>

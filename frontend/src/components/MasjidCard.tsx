@@ -1,16 +1,6 @@
 import { MapPin, CheckCircle, Users, Wind, Cat, Utensils, Moon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-import type { MasjidSummary } from "@/types";
-
-const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
-  const isVerified = masjid.status === "verified";
-
-  return (
-    <Link
-      to={`/masjid/${masjid.slug}`}
-=======
 import type { Masjid } from "@/types";
 import { toTitleCase } from "@/lib/utils";
 
@@ -31,28 +21,13 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
   return (
     <Link
       to={`/masjid/${masjid.slug ?? masjid.id}`}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
       className="group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-1"
     >
       {/* Placeholder image area */}
       <div className="relative h-48 overflow-hidden bg-muted">
-<<<<<<< HEAD
-        {masjid.coverImageUrl ? (
-          <img
-            src={masjid.coverImageUrl}
-            alt={masjid.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-secondary">
-            <MapPin className="h-12 w-12 text-muted-foreground/30" />
-          </div>
-        )}
-=======
         <div className="flex h-full items-center justify-center bg-secondary">
           <MapPin className="h-12 w-12 text-muted-foreground/30" />
         </div>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
         {/* Verification Badge */}
         <div className="absolute top-3 right-3">
@@ -66,8 +41,6 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
               Belum disahkan
             </Badge>
           )}
-<<<<<<< HEAD
-=======
         </div>
 
         {/* Feature Badges */}
@@ -82,7 +55,6 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
               {b.label}
             </Badge>
           ))}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
       </div>
 
@@ -93,23 +65,6 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
         </h3>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
-<<<<<<< HEAD
-          {masjid.city}, {masjid.state}
-        </p>
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" />
-              {masjid.visitCount} kunjungan
-            </span>
-          </div>
-          {masjid.averageRating != null && (
-            <div className="flex items-center gap-1 text-xs font-semibold text-accent">
-              <Star className="h-3.5 w-3.5 fill-current" />
-              {masjid.averageRating.toFixed(1)}
-            </div>
-          )}
-=======
           {masjid.address ?? "Alamat tidak dinyatakan"}
         </p>
         <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
@@ -118,7 +73,6 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
             {masjid.verification_count} pengesahan
           </span>
           <span className="capitalize text-muted-foreground/70">{masjid.status}</span>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
       </div>
     </Link>

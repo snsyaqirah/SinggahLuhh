@@ -68,24 +68,6 @@ const Header = () => {
           ))}
 
           {user ? (
-<<<<<<< HEAD
-            <div className="ml-3 flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                  {(user.displayName ?? user.fullName).charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-foreground">{user.displayName ?? user.fullName}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={logout}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-=======
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="ml-3 flex items-center gap-2 rounded-lg px-3 py-1.5 hover:bg-secondary transition-colors focus:outline-none">
@@ -133,7 +115,6 @@ const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
           ) : (
             <Button asChild variant="outline" size="sm" className="ml-3 rounded-lg">
               <Link to="/auth">
@@ -172,28 +153,11 @@ const Header = () => {
           ))}
 
           {user ? (
-<<<<<<< HEAD
-            <div className="mt-2 flex items-center justify-between rounded-lg px-4 py-3 border-t">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                    {(user.displayName ?? user.fullName).charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">{user.displayName ?? user.fullName}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => { logout(); setMobileOpen(false); }}
-                className="text-muted-foreground"
-=======
             <>
               <Link
                 to="/add"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
               >
                 <PlusCircle className="h-4 w-4" />
                 Tambah Masjid

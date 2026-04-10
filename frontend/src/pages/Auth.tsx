@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/AuthContext";
-import { authApi, ApiError, setTokens } from "@/lib/api";
+import { authApi, ApiError } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -146,9 +146,8 @@ const Auth = () => {
     setLoading(true);
     try {
       const data = await authApi.signup({ email, password, fullName, gender: gender as "Lelaki" | "Perempuan" });
-      if (data.accessToken && data.refreshToken && data.user) {
+      if (data.session && data.user) {
         // Email confirm is OFF — user is auto-confirmed, log in immediately
-        setTokens(data.accessToken, data.refreshToken);
         authenticate(data.user as { id: string; email: string; user_metadata: Record<string, unknown> });
         toast({ title: "Akaun berjaya didaftarkan! 🎉", description: "Selamat datang ke JejakMasjid." });
         navigate("/");
@@ -371,34 +370,6 @@ const Auth = () => {
               </div>
             )}
 
-<<<<<<< HEAD
-            <div className="space-y-2">
-              <Label htmlFor="email" className="font-medium">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@contoh.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-xl bg-background"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="font-medium">Kata Laluan *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Minimum 8 aksara"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-xl bg-background"
-                minLength={8}
-                required
-              />
-            </div>
-=======
             {/* ── Signup Step ── */}
             {step === "signup" && (
               <>
@@ -463,7 +434,6 @@ const Auth = () => {
                 </form>
               </>
             )}
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
           </div>
         </div>
       </main>
