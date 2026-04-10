@@ -65,78 +65,35 @@ export class ApiError extends Error {
 
 export const authApi = {
   register: (body: { email: string; password: string; fullName: string }) =>
-    request("/api/v1/auth/register", { method: "POST", body: JSON.stringify(body) }),
+    supabase.auth.signUp({
+      email: body.email,
+      password: body.password,
+      options: { data: { full_name: body.fullName } }
+    }),
 
-  login: async (body: { email: string; password: string }) => {
-    const tokens = await request<{ accessToken: string; refreshToken: string }>(
-      "/api/v1/auth/login",
-      { method: "POST", body: JSON.stringify(body) }
-    );
-    setTokens(tokens.accessToken, tokens.refreshToken);
-    return tokens;
-  },
+  login: async (body: { email: string; password: string }) => 
+    supabase.auth.signInWithPassword({
+      email: body.email,
+      password: body.password
+    }),
 
-  logout: () => {
-    const refresh = localStorage.getItem("refresh_token");
-    clearTokens();
-    return request("/api/v1/auth/logout", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken: refresh }),
-    });
-  },
-
-  googleLogin: () => {
-    window.location.href = `${BASE_URL}/api/v1/auth/google`;
-  },
+  googleLogin: () => 
+    supabase.auth.signInWithOAuth({ provider: 'google' }),
 };
 
 // ── Masjids ───────────────────────────────────────────────────────────────────
 
 export const masjidsApi = {
-  list: (params?: {
-    page?: number;
-    pageSize?: number;
-    city?: string;
-    state?: string;
-    status?: string;
-    search?: string;
-  }) => {
-    const qs = new URLSearchParams(
-      Object.entries(params ?? {})
-        .filter(([, v]) => v != null)
-        .map(([k, v]) => [k, String(v)])
-    );
-    return request(`/api/v1/masjids?${qs}`);
+  list: async () => {
+    const { data, error } = await supabase
+      .from('masjids') // Pastikan nama table sama macam kat Supabase
+      .select('*')
+    if (error) throw error;
+    return data;
   },
-
-  get: (slug: string) => request(`/api/v1/masjids/${slug}`),
-
-  nearby: (lat: number, lng: number, radiusMeters = 100) =>
-    request(`/api/v1/masjids/nearby?latitude=${lat}&longitude=${lng}&radiusMeters=${radiusMeters}`),
-
-  create: (body: unknown) =>
-    request("/api/v1/masjids", { method: "POST", body: JSON.stringify(body) }),
-
-  update: (id: string, body: unknown) =>
-    request(`/api/v1/masjids/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
-
-  verify: (id: string, action: "upvote" | "flag" = "upvote") =>
-    request(`/api/v1/masjids/${id}/verify`, {
-      method: "POST",
-      body: JSON.stringify({ action }),
-    }),
-
-  reviews: (id: string, page = 1) =>
-    request(`/api/v1/masjids/${id}/reviews?page=${page}`),
-
-  addReview: (id: string, body: unknown) =>
-    request(`/api/v1/masjids/${id}/reviews`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  visits: (id: string, page = 1) =>
-    request(`/api/v1/masjids/${id}/visits?page=${page}`),
+  
+  get: (slug: string) => 
+    supabase.from('masjids').select('*').eq('slug', slug).single(),
 };
 
 // ── Visits / Langkah ──────────────────────────────────────────────────────────

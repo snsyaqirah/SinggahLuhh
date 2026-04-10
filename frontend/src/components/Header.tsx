@@ -53,10 +53,10 @@ const Header = () => {
             <div className="ml-3 flex items-center gap-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                  {user.displayName.charAt(0).toUpperCase()}
+                  {(user.displayName ?? user.fullName).charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium text-foreground">{user.displayName}</span>
+              <span className="text-sm font-medium text-foreground">{user.displayName ?? user.fullName}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -108,10 +108,10 @@ const Header = () => {
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                    {user.displayName.charAt(0).toUpperCase()}
+                    {(user.displayName ?? user.fullName).charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium">{user.displayName}</span>
+                <span className="text-sm font-medium">{user.displayName ?? user.fullName}</span>
               </div>
               <Button
                 variant="ghost"

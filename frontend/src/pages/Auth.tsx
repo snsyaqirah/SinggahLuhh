@@ -107,11 +107,11 @@ const Auth = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="Minimum 6 aksara"
+                placeholder="Minimum 8 aksara"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="rounded-xl bg-background"
-                minLength={6}
+                minLength={8}
                 required
               />
             </div>

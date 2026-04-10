@@ -1,79 +1,70 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  displayName: string;
-  avatar?: string;
-  createdAt: string;
-}
+import { authApi, usersApi, ApiError } from "@/lib/api";
+import type { User } from "@/types";
 
 interface AuthContextType {
-  user: UserProfile | null;
+  user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, displayName: string) => Promise<boolean>;
+  signup: (email: string, password: string, fullName: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY = "jejakmasjid_user";
-const USERS_KEY = "jejakmasjid_users";
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Restore session on mount by fetching /users/me with stored token
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {}
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+    usersApi
+      .me()
+      .then((u) => setUser(u as User))
+      .catch(() => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const getUsers = (): Record<string, { profile: UserProfile; password: string }> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+      await authApi.login({ email, password });
+      const u = await usersApi.me();
+      setUser(u as User);
+      return true;
     } catch {
-      return {};
+      return false;
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const users = getUsers();
-    const entry = users[email.toLowerCase()];
-    if (!entry || entry.password !== password) return false;
-    setUser(entry.profile);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entry.profile));
-    return true;
-  };
-
-  const signup = async (email: string, password: string, displayName: string): Promise<boolean> => {
-    const users = getUsers();
-    const key = email.toLowerCase();
-    if (users[key]) return false; // already exists
-
-    const profile: UserProfile = {
-      id: crypto.randomUUID(),
-      email: key,
-      displayName,
-      createdAt: new Date().toISOString(),
-    };
-
-    users[key] = { profile, password };
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    setUser(profile);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-    return true;
+  const signup = async (
+    email: string,
+    password: string,
+    fullName: string
+  ): Promise<boolean> => {
+    try {
+      await authApi.register({ email, password, fullName });
+      await authApi.login({ email, password });
+      const u = await usersApi.me();
+      setUser(u as User);
+      return true;
+    } catch (e) {
+      // 409 = email already registered
+      if (e instanceof ApiError && e.status === 409) return false;
+      return false;
+    }
   };
 
   const logout = () => {
+    authApi.logout().catch(() => {});
     setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (

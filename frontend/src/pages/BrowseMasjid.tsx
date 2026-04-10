@@ -1,38 +1,41 @@
 import { useState } from "react";
-import { Search, MapPin, Star } from "lucide-react";
+import { Search, MapPin, Star, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MasjidCard from "@/components/MasjidCard";
-import { mockMasjids, QUICK_TAGS } from "@/data/mockData";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { masjidsApi } from "@/lib/api";
+import type { PaginatedResponse, MasjidSummary } from "@/types";
 
 const BrowseMasjid = () => {
   const [search, setSearch] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"visits" | "rating">("visits");
 
-  const toggleTag = (key: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(key) ? prev.filter((t) => t !== key) : [...prev, key]
-    );
-  };
+  const { data, isLoading, isError } = useQuery<PaginatedResponse<MasjidSummary>>({
+    queryKey: ["masjids"],
+    queryFn: () => masjidsApi.list({ pageSize: 100 }) as Promise<PaginatedResponse<MasjidSummary>>,
+  });
 
-  const filtered = mockMasjids
+  const masjids = data?.items ?? [];
+
+  // Client-side filtering & sort
+  const filtered = masjids
     .filter((m) => {
-      const matchSearch =
-        m.name.toLowerCase().includes(search.toLowerCase()) ||
-        m.location.toLowerCase().includes(search.toLowerCase()) ||
-        m.state.toLowerCase().includes(search.toLowerCase());
-      const matchTags =
-        selectedTags.length === 0 || selectedTags.every((t) => m.tags.includes(t));
-      return matchSearch && matchTags;
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        m.name.toLowerCase().includes(q) ||
+        m.city.toLowerCase().includes(q) ||
+        m.state.toLowerCase().includes(q)
+      );
     })
     .sort((a, b) =>
       sortBy === "rating"
-        ? b.averageRating - a.averageRating
-        : b.totalVisits - a.totalVisits
+        ? (b.averageRating ?? 0) - (a.averageRating ?? 0)
+        : b.visitCount - a.visitCount
     );
 
   return (
@@ -62,26 +65,6 @@ const BrowseMasjid = () => {
           </div>
         </div>
 
-        {/* Quick Tags Filter */}
-        <div className="mb-4">
-          <p className="text-sm font-medium text-muted-foreground mb-2">Filter kemudahan:</p>
-          <div className="flex flex-wrap gap-2">
-            {QUICK_TAGS.map((tag) => (
-              <button
-                key={tag.key}
-                onClick={() => toggleTag(tag.key)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  selectedTags.includes(tag.key)
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                }`}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Sort */}
         <div className="mb-6 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Susun:</span>
@@ -104,7 +87,15 @@ const BrowseMasjid = () => {
         </div>
 
         {/* Results */}
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : isError ? (
+          <div className="py-20 text-center">
+            <p className="text-muted-foreground">Gagal memuatkan data. Sila cuba lagi.</p>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((masjid) => (
               <MasjidCard key={masjid.id} masjid={masjid} />
@@ -119,7 +110,7 @@ const BrowseMasjid = () => {
             <p className="mt-2 text-muted-foreground">
               Cuba carian lain atau tambah masjid baru!
             </p>
-            <Button asChild className="mt-4 rounded-xl">
+            <Button asChild className="mt-6 rounded-xl">
               <Link to="/add">Tambah Masjid</Link>
             </Button>
           </div>

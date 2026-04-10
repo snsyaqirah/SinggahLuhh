@@ -1,48 +1,21 @@
 import { MapPin, CheckCircle, Users, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { QUICK_TAGS } from "@/data/mockData";
-import type { Review } from "@/data/mockData";
+import type { MasjidSummary } from "@/types";
 
-export interface MasjidData {
-  id: string;
-  name: string;
-  location: string;
-  state: string;
-  image?: string;
-  verified: boolean;
-  verificationCount: number;
-  totalVisits: number;
-  hasIftar: boolean;
-  hasTerawih: boolean;
-  terawihRakaat?: number;
-  iftarInfo?: string;
-  nearPublicTransport: boolean;
-  parkingStatus: "luas" | "terhad" | "tiada" | "";
-  hasOKUAccess: boolean;
-  hasWomenSpace: boolean;
-  womenSpaceInfo?: string;
-  hasAC: boolean;
-  hasWifi: boolean;
-  tags: string[];
-  averageRating: number;
-  reviews: Review[];
-}
-
-const MasjidCard = ({ masjid }: { masjid: MasjidData }) => {
-  // Show up to 3 top tags
-  const topTags = masjid.tags.slice(0, 3).map((t) => QUICK_TAGS.find((qt) => qt.key === t)).filter(Boolean);
+const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
+  const isVerified = masjid.status === "verified";
 
   return (
     <Link
-      to={`/masjid/${masjid.id}`}
+      to={`/masjid/${masjid.slug}`}
       className="group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-1"
     >
       {/* Image */}
       <div className="relative h-48 overflow-hidden bg-muted">
-        {masjid.image ? (
+        {masjid.coverImageUrl ? (
           <img
-            src={masjid.image}
+            src={masjid.coverImageUrl}
             alt={masjid.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -53,28 +26,17 @@ const MasjidCard = ({ masjid }: { masjid: MasjidData }) => {
         )}
 
         {/* Verification Badge */}
-        {masjid.verified ? (
-          <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3">
+          {isVerified ? (
             <Badge className="bg-accent text-accent-foreground gap-1 font-sans text-xs font-semibold">
               <CheckCircle className="h-3 w-3" />
               Disahkan
             </Badge>
-          </div>
-        ) : (
-          <div className="absolute top-3 right-3">
+          ) : (
             <Badge variant="secondary" className="font-sans text-xs">
               Belum disahkan
             </Badge>
-          </div>
-        )}
-
-        {/* Quick Tags */}
-        <div className="absolute bottom-3 left-3 flex gap-1.5 flex-wrap">
-          {topTags.map((tag) => tag && (
-             <Badge key={tag.key} variant="secondary" className="bg-primary/90 text-primary-foreground font-sans text-xs backdrop-blur-sm">
-               {tag.label}
-            </Badge>
-          ))}
+          )}
         </div>
       </div>
 
@@ -85,20 +47,19 @@ const MasjidCard = ({ masjid }: { masjid: MasjidData }) => {
         </h3>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
-          {masjid.location}, {masjid.state}
+          {masjid.city}, {masjid.state}
         </p>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Users className="h-3.5 w-3.5" />
-              {masjid.totalVisits} kunjungan
+              {masjid.visitCount} kunjungan
             </span>
           </div>
-          {masjid.averageRating > 0 && (
+          {masjid.averageRating != null && (
             <div className="flex items-center gap-1 text-xs font-semibold text-accent">
               <Star className="h-3.5 w-3.5 fill-current" />
               {masjid.averageRating.toFixed(1)}
-              <span className="text-muted-foreground font-normal">({masjid.reviews.length})</span>
             </div>
           )}
         </div>
