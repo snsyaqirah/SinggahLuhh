@@ -1,21 +1,15 @@
 import { useState } from "react";
-<<<<<<< HEAD
 import { Search, MapPin, Star, Loader2 } from "lucide-react";
-=======
 import { Search, MapPin, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MasjidCard from "@/components/MasjidCard";
-<<<<<<< HEAD
-=======
 import { masjidsApi } from "@/lib/api";
 import { QUICK_TAGS, TAG_FILTER_FN, type QuickTagKey } from "@/lib/constants";
 import type { Masjid } from "@/types";
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { masjidsApi } from "@/lib/api";
@@ -23,7 +17,6 @@ import type { PaginatedResponse, MasjidSummary } from "@/types";
 
 const BrowseMasjid = () => {
   const [search, setSearch] = useState("");
-<<<<<<< HEAD
   const [sortBy, setSortBy] = useState<"visits" | "rating">("visits");
 
   const { data, isLoading, isError } = useQuery<PaginatedResponse<MasjidSummary>>({
@@ -48,7 +41,6 @@ const BrowseMasjid = () => {
       sortBy === "rating"
         ? (b.averageRating ?? 0) - (a.averageRating ?? 0)
         : b.visitCount - a.visitCount
-=======
   const [selectedTags, setSelectedTags] = useState<QuickTagKey[]>([]);
   const [sortBy, setSortBy] = useState<"verification" | "name">("verification");
 
@@ -76,7 +68,6 @@ const BrowseMasjid = () => {
       sortBy === "name"
         ? a.name.localeCompare(b.name)
         : (b.verification_count ?? 0) - (a.verification_count ?? 0)
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
     );
 
   return (
@@ -106,7 +97,6 @@ const BrowseMasjid = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
         {/* Sort */}
         <div className="mb-6 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Susun:</span>
@@ -126,55 +116,10 @@ const BrowseMasjid = () => {
           >
             <Star className="h-3 w-3" /> Rating Tertinggi
           </button>
-=======
-        {/* Filter + Sort bar */}
-        <div className="mb-6 space-y-2">
-          {/* Filter tags — horizontally scrollable on mobile, wraps on desktop */}
-          <div className="flex items-start gap-2">
-            <span className="shrink-0 pt-1.5 text-xs font-medium text-muted-foreground">Filter:</span>
-            <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap md:flex-wrap scrollbar-none -mr-4 pr-4">
-              {QUICK_TAGS.map((tag) => (
-                <button
-                  key={tag.key}
-                  onClick={() => toggleTag(tag.key)}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    selectedTags.includes(tag.key)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {tag.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sort */}
-          <div className="flex items-center gap-2">
-            <span className="shrink-0 text-xs font-medium text-muted-foreground">Susun:</span>
-            <button
-              onClick={() => setSortBy("verification")}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                sortBy === "verification" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
-              }`}
-            >
-              Paling Disahkan
-            </button>
-            <button
-              onClick={() => setSortBy("name")}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${
-                sortBy === "name" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
-              }`}
-            >
-              <Star className="h-3 w-3" /> Nama A-Z
-            </button>
-          </div>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
 
         {/* Results */}
         {isLoading ? (
-<<<<<<< HEAD
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
@@ -182,9 +127,7 @@ const BrowseMasjid = () => {
           <div className="py-20 text-center">
             <p className="text-muted-foreground">Gagal memuatkan data. Sila cuba lagi.</p>
           </div>
-=======
           <div className="py-20 text-center text-muted-foreground">Memuatkan masjid...</div>
->>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         ) : filtered.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((masjid) => (
