@@ -1,9 +1,42 @@
+# ── Dependencies ─────────────────────────────────────────
 node_modules/
-dist/
+.venv/
 venv/
+env/
+
+# ── Build output ─────────────────────────────────────────
+dist/
+build/
+
+# ── Python ───────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Environment / Secrets ─────────────────────────────────
 .env
 .env.local
+.env.*.local
+!.env.example
+
+# ── Logs ─────────────────────────────────────────────────
 *.log
+logs/
+
+# ── OS files ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ──────────────────────────────────────────────────
+.idea/
+*.suo
+*.sw?
+
+# ── Misc ─────────────────────────────────────────────────
 frontend_structure.md
+*.tsbuildinfo

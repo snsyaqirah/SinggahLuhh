@@ -1,94 +1,134 @@
+"""
+Masjid schemas with complete Supabase integration.
+Includes facilities, media, live updates, and verification status.
+"""
 import uuid
 from datetime import datetime
-
-from pydantic import Field, field_validator
-
+from typing import Literal
+from pydantic import Field
 from app.schemas.base import CamelModel
-from app.schemas.user import UserProfile
+from app.schemas.facilities import FacilitiesResponse
+from app.schemas.live_updates import MasjidLiveStatus
+from app.schemas.verification import MasjidVerificationStatus
 
 
-# ── Shared enums-as-literals ─────────────────────────────────────────────────
-MasjidStatus = str   # "unverified" | "verified" | "rejected"
+# ── Enums ────────────────────────────────────────────────────────────
+MasjidStatus = Literal["pending", "verified", "flagged", "rejected"]
+MediaType = Literal["main_photo", "toilet_photo", "interior_photo", "qr_tng", "qr_duitnow", "masjid_board"]
 
 
-# ── Request bodies ───────────────────────────────────────────────────────────
+# ── Request bodies (Create/Update) ──────────────────────────────────
 
 class MasjidCreate(CamelModel):
+    """Create new masjid with location validation."""
     name: str = Field(min_length=3, max_length=200)
-    description: str | None = Field(default=None, max_length=2000)
     address: str = Field(max_length=500)
-    city: str = Field(max_length=100)
-    state: str = Field(max_length=100)
-    postcode: str | None = Field(default=None, max_length=10)
-    country: str = Field(default="Malaysia", max_length=100)
+    description: str | None = Field(None, max_length=2000)
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
-    google_place_id: str | None = None
-    google_maps_url: str | None = None
-    facilities: dict | None = None
 
 
 class MasjidUpdate(CamelModel):
-    name: str | None = Field(default=None, min_length=3, max_length=200)
+    """Update masjid info (owner or admin only)."""
+    name: str | None = Field(None, min_length=3, max_length=200)
+    address: str | None = None
     description: str | None = None
-    address: str | None = Field(default=None, max_length=500)
-    city: str | None = Field(default=None, max_length=100)
-    state: str | None = Field(default=None, max_length=100)
-    postcode: str | None = Field(default=None, max_length=10)
-    latitude: float | None = Field(default=None, ge=-90, le=90)
-    longitude: float | None = Field(default=None, ge=-180, le=180)
-    facilities: dict | None = None
-    cover_image_url: str | None = None
+    latitude: float | None = Field(None, ge=-90, le=90)
+    longitude: float | None = Field(None, ge=-180, le=180)
 
 
-# ── Response bodies ───────────────────────────────────────────────────────────
+# ── Media (Photos & QR Codes) ───────────────────────────────────────
 
-class MasjidSummary(CamelModel):
-    """Lightweight card — used in list/map views."""
+class MasjidMediaCreate(CamelModel):
+    """Upload photo or QR code."""
+    masjid_id: uuid.UUID
+    media_type: MediaType
+    url: str  # Uploaded to storage, URL returned
+
+
+class MasjidMediaResponse(CamelModel):
+    """Media item with verification status."""
+    id: uuid.UUID
+    masjid_id: uuid.UUID
+    media_type: MediaType
+    url: str
+    is_verified: bool = False
+    verification_count: int = 0
+    created_at: datetime
+    created_by: uuid.UUID | None = None
+
+
+# ── Response bodies ─────────────────────────────────────────────────
+
+class MasjidListItem(CamelModel):
+    """Lightweight masjid card for list/map views."""
     id: uuid.UUID
     name: str
-    slug: str
-    city: str
-    state: str
+    address: str
     latitude: float
     longitude: float
     status: MasjidStatus
     verification_count: int
-    visit_count: int
-    average_rating: float | None
-    cover_image_url: str | None
+    distance_meters: float | None = None  # Populated if nearby search
+    
+    # Quick preview of key facilities
+    cooling_system: str | None = None
+    has_coway: bool = False
+    kucing_count: str | None = None
+    
+    # Media preview
+    main_photo: str | None = None
+    
+    created_at: datetime
 
 
 class MasjidDetail(CamelModel):
-    """Full masjid page data."""
+    """Full masjid profile page."""
     id: uuid.UUID
     name: str
-    slug: str
-    description: str | None
     address: str
-    city: str
-    state: str
-    postcode: str | None
-    country: str
+    description: str | None
     latitude: float
     longitude: float
-    google_place_id: str | None
-    google_maps_url: str | None
-    images: list | None
-    cover_image_url: str | None
-    facilities: dict | None
     status: MasjidStatus
     verification_count: int
-    visit_count: int
-    average_rating: float | None
-    review_count: int
-    submitted_by: UserProfile | None
+    
+    # Complete facilities data
+    facilities: FacilitiesResponse | None
+    
+    # Media gallery
+    media: list[MasjidMediaResponse]
+    
+    # Live status (real-time crowdsourced data)
+    live_status: MasjidLiveStatus | None
+    
+    # Verification status
+    verification: MasjidVerificationStatus
+    
+    # Stats
+    total_visits: int = 0
+    unique_visitors: int = 0
+    
+    # Audit
     created_at: datetime
     updated_at: datetime
+    created_by: uuid.UUID | None
+    updated_by: uuid.UUID | None
 
 
-class NearbyQuery(CamelModel):
-    """Query params for duplicate-check and nearby masjid search."""
+# ── Nearby Search (100m Radius Check) ──────────────────────────────
+
+class NearbySearchRequest(CamelModel):
+    """Search for masjids near coordinates."""
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
-    radius_meters: int = Field(default=100, ge=50, le=50_000)
+    radius_meters: int = Field(100, le=5000, description="Search radius (max 5km)")
+
+
+class NearbyMasjidResult(CamelModel):
+    """Result from nearby search with distance."""
+    id: uuid.UUID
+    name: str
+    distance_meters: float
+    address: str
+    status: MasjidStatus

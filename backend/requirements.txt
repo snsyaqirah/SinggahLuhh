@@ -6,6 +6,8 @@ uvicorn[standard]==0.30.6
 sqlalchemy[asyncio]==2.0.35
 asyncpg==0.30.0                # PostgreSQL async driver (0.30+ required for Python 3.13)
 alembic==1.13.3
+supabase==2.10.0               # Supabase client for auth & realtime
+postgis==1.0.4                 # PostGIS helpers
 
 # Pydantic & settings
 pydantic[email]==2.9.2

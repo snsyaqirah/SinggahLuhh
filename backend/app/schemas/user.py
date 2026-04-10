@@ -1,54 +1,37 @@
+"""
+User profile schemas matching Supabase profiles table.
+"""
 import uuid
 from datetime import datetime
-
 from pydantic import EmailStr, Field
-
 from app.schemas.base import CamelModel
 
 
-# ── Request bodies ──────────────────────────────────────────────────────────
-
-class UserRegister(CamelModel):
-    email: EmailStr
-    password: str = Field(min_length=8)
-    full_name: str = Field(min_length=2, max_length=100)
-
-
-class UserLogin(CamelModel):
-    email: EmailStr
-    password: str
-
-
-class UserUpdate(CamelModel):
-    full_name: str | None = Field(default=None, max_length=100)
-    display_name: str | None = Field(default=None, max_length=50)
-    bio: str | None = Field(default=None, max_length=280)
-    avatar_url: str | None = None
-
-
-# ── Response bodies ──────────────────────────────────────────────────────────
-
-class UserPublic(CamelModel):
-    """Safe public profile — never expose password_hash or google_id."""
-    id: uuid.UUID
-    email: EmailStr
-    full_name: str
-    display_name: str | None
-    avatar_url: str | None
-    bio: str | None
-    role: str
-    is_email_verified: bool
-    created_at: datetime
-
+# ── Response Bodies ──────────────────────────────────────────────────
 
 class UserProfile(CamelModel):
-    """Public-facing profile (no email)."""
+    """Public user profile."""
     id: uuid.UUID
-    display_name: str | None
     full_name: str
-    avatar_url: str | None
-    bio: str | None
+    phone_number: str | None
+    reputation_points: int
+    streak_count: int
+    longest_streak: int
     created_at: datetime
+
+
+class UserProfileComplete(UserProfile):
+    """Complete profile with email (for own profile only)."""
+    email: EmailStr
+    last_checkin_at: datetime | None
+
+
+# ── Update Profile ──────────────────────────────────────────────────
+
+class UserProfileUpdate(CamelModel):
+    """Update user profile info."""
+    full_name: str | None = Field(None, min_length=2, max_length=100)
+    phone_number: str | None = None
 
 
 # ── Auth responses ───────────────────────────────────────────────────────────

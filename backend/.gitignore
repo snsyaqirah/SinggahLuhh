@@ -1,4 +1,4 @@
-# Python
+# ── Python ───────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
@@ -8,22 +8,37 @@ __pycache__/
 dist/
 build/
 
-# Virtual environments
+# ── Virtual environments ──────────────────────────────────
 .venv/
 venv/
 env/
 
-# Secrets
+# ── Secrets ───────────────────────────────────────────────
 .env
+.env.*.local
+!.env.example
 
-# Alembic
-alembic/versions/*.py
+# ── Database / Uploads ────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+uploads/
 
-# Testing
+# ── Testing ───────────────────────────────────────────────
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
 
-# IDE
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+
+# ── IDE ──────────────────────────────────────────────────
 .idea/
 .vscode/
+
+# ── OS files ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db

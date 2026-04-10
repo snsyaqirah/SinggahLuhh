@@ -1,29 +1,41 @@
 /**
  * JejakMasjid API client
- * ─────────────────────────────────────────────────────────────────────────────
- * All fetch calls go through here. camelCase on FE matches the Pydantic
- * alias_generator on the backend, so no mapping layer is needed.
+ * All requests go through here. Matches FastAPI backend at /api/v1/...
+ * Note: auth/pagination wrappers are camelCase (Pydantic aliases).
+ *       Masjid/facilities data inside `items` is snake_case (raw Supabase).
  */
+
+import type {
+  Masjid,
+  UserStats,
+  UserBadge,
+  VisitHistory,
+  CheckInResult,
+  VerificationStatus,
+  LiveStatus,
+  PaginatedResponse,
+  AuthUser,
+} from "@/types";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-// ── Token helpers ─────────────────────────────────────────────────────────────
+// ── Token helpers ─────────────────────────────────────────────────
 
-function getAccessToken(): string | null {
+export function getAccessToken(): string | null {
   return localStorage.getItem("access_token");
 }
 
-function setTokens(access: string, refresh: string) {
+export function setTokens(access: string, refresh: string) {
   localStorage.setItem("access_token", access);
   localStorage.setItem("refresh_token", refresh);
 }
 
-function clearTokens() {
+export function clearTokens() {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
 }
 
-// ── Core fetch wrapper ────────────────────────────────────────────────────────
+// ── Core fetch wrapper ────────────────────────────────────────────
 
 async function request<T>(
   endpoint: string,
@@ -41,13 +53,11 @@ async function request<T>(
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Unknown error" }));
-    throw new ApiError(res.status, error.error ?? error.detail ?? "Request failed");
+    const error = await res.json().catch(() => ({ detail: "Unknown error" }));
+    throw new ApiError(res.status, error.detail ?? error.error ?? "Request failed");
   }
 
-  // 204 No Content
   if (res.status === 204) return undefined as T;
-
   return res.json();
 }
 
@@ -61,9 +71,10 @@ export class ApiError extends Error {
   }
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────────
 
 export const authApi = {
+<<<<<<< HEAD
   register: (body: { email: string; password: string; fullName: string }) =>
     supabase.auth.signUp({
       email: body.email,
@@ -79,11 +90,111 @@ export const authApi = {
 
   googleLogin: () => 
     supabase.auth.signInWithOAuth({ provider: 'google' }),
+=======
+  signup: (body: {
+    email: string;
+    password: string;
+    fullName: string;
+    phoneNumber?: string;
+    gender?: "Lelaki" | "Perempuan";
+  }) =>
+    request<{
+      message: string;
+      email: string;
+      userId: string;
+      accessToken?: string;
+      refreshToken?: string;
+      user?: Record<string, unknown>;
+    }>(
+      "/api/v1/auth/signup",
+      { method: "POST", body: JSON.stringify(body) }
+    ),
+
+  verifyOtp: async (body: { email: string; token: string }) => {
+    const data = await request<{
+      message: string;
+      accessToken: string;
+      refreshToken: string;
+      user: Record<string, unknown>;
+    }>("/api/v1/auth/verify-otp", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    setTokens(data.accessToken, data.refreshToken);
+    return data;
+  },
+
+  resendOtp: (email: string) =>
+    request<{ message: string }>("/api/v1/auth/resend-otp", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  login: async (body: { email: string; password: string }) => {
+    const data = await request<{
+      accessToken: string;
+      refreshToken: string;
+      user: Record<string, unknown>;
+    }>("/api/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    setTokens(data.accessToken, data.refreshToken);
+    return data;
+  },
+
+  logout: async () => {
+    try {
+      await request("/api/v1/auth/logout", { method: "POST" });
+    } finally {
+      clearTokens();
+    }
+  },
+
+  me: () =>
+    request<{ id: string; email: string; user_metadata: Record<string, unknown> }>(
+      "/api/v1/auth/me"
+    ),
+
+  forgotPassword: (email: string) =>
+    request<{ message: string }>("/api/v1/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      }),
+    }),
+
+  updatePassword: (newPassword: string, accessToken: string) =>
+    request<{ message: string }>("/api/v1/auth/update-password", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ newPassword }),
+    }),
+
+  deleteAccount: () =>
+    request<{ message: string; success: boolean }>("/api/v1/auth/account", { method: "DELETE" }),
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 };
 
-// ── Masjids ───────────────────────────────────────────────────────────────────
+export function userFromMeta(raw: {
+  id: string;
+  email: string;
+  user_metadata: Record<string, unknown>;
+}): AuthUser {
+  return {
+    id: raw.id,
+    email: raw.email,
+    fullName:
+      (raw.user_metadata?.full_name as string) ??
+      raw.email.split("@")[0],
+  };
+}
+
+// ── Masjids ───────────────────────────────────────────────────────
 
 export const masjidsApi = {
+<<<<<<< HEAD
   list: async () => {
     const { data, error } = await supabase
       .from('masjids') // Pastikan nama table sama macam kat Supabase
@@ -94,28 +205,301 @@ export const masjidsApi = {
   
   get: (slug: string) => 
     supabase.from('masjids').select('*').eq('slug', slug).single(),
-};
-
-// ── Visits / Langkah ──────────────────────────────────────────────────────────
-
-export const visitsApi = {
-  checkIn: (body: unknown) =>
-    request("/api/v1/visits", { method: "POST", body: JSON.stringify(body) }),
-
-  myVisits: (page = 1, prayerType?: string) => {
-    const qs = prayerType ? `&prayerType=${prayerType}` : "";
-    return request(`/api/v1/visits/me?page=${page}${qs}`);
+=======
+  list: (params?: {
+    page?: number;
+    page_size?: number;
+    status?: string;
+    search?: string;
+  }) => {
+    const qs = new URLSearchParams(
+      Object.entries(params ?? {})
+        .filter(([, v]) => v != null)
+        .map(([k, v]) => [k, String(v)])
+    );
+    return request<PaginatedResponse<Masjid>>(`/api/v1/masjids?${qs}`);
   },
 
-  delete: (id: string) =>
-    request(`/api/v1/visits/${id}`, { method: "DELETE" }),
+  get: (id: string) => request<Masjid>(`/api/v1/masjids/${id}`),
+
+  checkNearby: (lat: number, lng: number, radiusMeters = 100) =>
+    request<Array<{ id: string; name: string; distance_meters: number }>>(
+      "/api/v1/masjids/check-nearby",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          latitude: lat,
+          longitude: lng,
+          radius_meters: radiusMeters,
+        }),
+      }
+    ),
+
+  create: (body: {
+    name: string;
+    address: string;
+    description?: string;
+    latitude: number;
+    longitude: number;
+  }) =>
+    request<Masjid>("/api/v1/masjids", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  update: (id: string, body: Partial<{ name: string; address: string; description: string }>) =>
+    request<Masjid>(`/api/v1/masjids/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+
+  remove: (id: string) =>
+    request<{ success: boolean; message: string }>(`/api/v1/masjids/${id}`, { method: "DELETE" }),
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 };
 
-// ── Users ─────────────────────────────────────────────────────────────────────
+// ── Facilities ────────────────────────────────────────────────────
 
-export const usersApi = {
-  me: () => request("/api/v1/users/me"),
-  updateMe: (body: unknown) =>
-    request("/api/v1/users/me", { method: "PATCH", body: JSON.stringify(body) }),
-  profile: (id: string) => request(`/api/v1/users/${id}`),
+export const facilitiesApi = {
+  get: (masjidId: string) =>
+    request<Record<string, unknown> | null>(`/api/v1/facilities/${masjidId}`),
+
+  create: (masjidId: string, body: Record<string, unknown>) =>
+    request<Record<string, unknown>>(`/api/v1/facilities/${masjidId}`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  update: (masjidId: string, body: Record<string, unknown>) =>
+    request<Record<string, unknown>>(`/api/v1/facilities/${masjidId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+};
+
+// ── Check-ins ─────────────────────────────────────────────────────
+
+export const checkinsApi = {
+  checkIn: (body: {
+    masjidId: string;
+    visitType: string;
+    latitude: number;
+    longitude: number;
+  }) =>
+    request<CheckInResult>("/api/v1/checkins/", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  history: (page = 1) =>
+    request<VisitHistory>(`/api/v1/checkins/history?page=${page}`),
+};
+
+// ── Verifications ─────────────────────────────────────────────────
+
+export const verificationsApi = {
+  vote: (body: {
+    masjidId: string;
+    voteType: "upvote" | "downvote";
+    reason?: string;
+  }) =>
+    request("/api/v1/verifications/vote", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  getStatus: (masjidId: string) =>
+    request<VerificationStatus>(`/api/v1/verifications/status/${masjidId}`),
+
+  // alias kept for backward compat
+  status: (masjidId: string) =>
+    request<VerificationStatus>(`/api/v1/verifications/status/${masjidId}`),
+
+  report: (body: {
+    masjidId: string;
+    reportType: string;
+    description: string;
+  }) =>
+    request("/api/v1/verifications/report", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  getMyReports: () =>
+    request<import("@/types").Report[]>("/api/v1/verifications/reports/mine"),
+};
+
+// ── Media ─────────────────────────────────────────────────────────
+
+export type MediaType = "main_photo" | "toilet_photo" | "interior_photo" | "qr_tng" | "qr_duitnow" | "masjid_board";
+
+export interface MediaItem {
+  id: string;
+  masjidId: string;
+  mediaType: MediaType;
+  url: string;
+  isVerified: boolean;
+  verificationCount: number;
+  createdAt: string;
+  createdBy: string | null;
+}
+
+export const mediaApi = {
+  get: (masjidId: string) =>
+    request<MediaItem[]>(`/api/v1/masjids/${masjidId}/media`),
+
+  add: (masjidId: string, body: { media_type: MediaType; url: string }) =>
+    request<MediaItem>(`/api/v1/masjids/${masjidId}/media`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  remove: (masjidId: string, mediaId: string) =>
+    request(`/api/v1/masjids/${masjidId}/media/${mediaId}`, { method: "DELETE" }),
+
+  upload: async (masjidId: string, file: File, mediaType: MediaType): Promise<MediaItem> => {
+    const token = getAccessToken();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("media_type", mediaType);
+    const res = await fetch(`${BASE_URL}/api/v1/masjids/${masjidId}/media/upload`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Upload gagal" }));
+      throw new ApiError(res.status, err.detail ?? "Upload gagal");
+    }
+    return res.json();
+  },
+};
+
+// ── Live Updates ──────────────────────────────────────────────────
+
+export const liveUpdatesApi = {
+  getStatus: (masjidId: string) =>
+    request<LiveStatus>(`/api/v1/live-updates/${masjidId}`),
+
+  post: (body: {
+    masjidId: string;
+    updateType: string;
+    value: string;
+  }) =>
+    request("/api/v1/live-updates/", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+};
+
+// ── Dashboard ─────────────────────────────────────────────────────
+
+export const dashboardApi = {
+  stats: () => request<UserStats>("/api/v1/dashboard/stats"),
+  badges: () => request<UserBadge[]>("/api/v1/dashboard/badges"),
+  leaderboard: (limit = 10) =>
+    request<{
+      entries: Array<{
+        rank: number;
+        userId: string;
+        fullName: string;
+        reputationPoints: number;
+        streakCount: number;
+        totalVisits: number;
+        badgesEarned: number;
+      }>;
+      userRank: number | null;
+      totalUsers: number;
+    }>(`/api/v1/dashboard/leaderboard?limit=${limit}`),
+};
+
+// ── Public Stats ──────────────────────────────────────────────────
+
+export const statsApi = {
+  public: () =>
+    request<{
+      total_masjids: number;
+      verified_masjids: number;
+      total_visits: number;
+    }>("/api/v1/masjids/stats"),
+};
+
+// ── Profile ───────────────────────────────────────────────────────
+
+export const profileApi = {
+  get: () =>
+    request<{
+      id: string;
+      full_name: string;
+      phone_number: string | null;
+      gender: string | null;
+      reputation_points: number;
+      streak_count: number;
+      longest_streak: number;
+      last_checkin_at: string | null;
+      created_at: string | null;
+      is_admin: boolean;
+    }>("/api/v1/profile/me"),
+
+  update: (body: { full_name?: string; phone_number?: string; gender?: "Lelaki" | "Perempuan" }) =>
+    request<{
+      id: string;
+      full_name: string;
+      phone_number: string | null;
+      gender: string | null;
+      reputation_points: number;
+      streak_count: number;
+      longest_streak: number;
+      last_checkin_at: string | null;
+      created_at: string | null;
+      is_admin: boolean;
+    }>("/api/v1/profile/me", {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+};
+
+// ── Admin ────────────────────────────────────────────────────────
+
+export const adminApi = {
+  listReports: () =>
+    request<import("@/types").Report[]>("/api/v1/verifications/reports/all"),
+
+  resolveReport: (reportId: string, body: { status: string; resolution_notes?: string }) =>
+    request<import("@/types").Report>(`/api/v1/verifications/reports/${reportId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+
+  listPendingMedia: () =>
+    request<Array<{ id: string; masjid_id: string; media_type: string; url: string; created_at: string; masjid_name?: string }>>(
+      "/api/v1/masjids/admin/pending-media"
+    ),
+
+  approveMedia: (mediaId: string) =>
+    request<{ success: boolean }>(`/api/v1/masjids/admin/media/${mediaId}/approve`, { method: "PATCH" }),
+
+  rejectMedia: (mediaId: string) =>
+    request<{ success: boolean }>(`/api/v1/masjids/admin/media/${mediaId}/reject`, { method: "DELETE" }),
+};
+
+// ── Feedback ──────────────────────────────────────────────────────
+
+export const feedbackApi = {
+  submit: (body: { message: string; rating?: number; pageUrl?: string; name?: string }) =>
+    request<{ id: string }>("/api/v1/feedback", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  list: () =>
+    request<Array<{
+      id: string;
+      message: string;
+      rating: number | null;
+      page_url: string | null;
+      name: string | null;
+      user_id: string | null;
+      created_at: string;
+    }>>("/api/v1/feedback/admin"),
 };

@@ -1,6 +1,7 @@
-import { MapPin, CheckCircle, Users, Star } from "lucide-react";
+import { MapPin, CheckCircle, Users, Wind, Cat, Utensils, Moon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 import type { MasjidSummary } from "@/types";
 
 const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
@@ -9,10 +10,33 @@ const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
   return (
     <Link
       to={`/masjid/${masjid.slug}`}
+=======
+import type { Masjid } from "@/types";
+import { toTitleCase } from "@/lib/utils";
+
+export type { Masjid as MasjidData };
+
+const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
+  const f = masjid.facilities;
+  const isVerified = masjid.status === "verified";
+
+  const featureBadges: { label: string; icon: React.ReactNode }[] = [];
+  if (f?.has_iftar) featureBadges.push({ label: "Iftar", icon: <Utensils className="h-3 w-3" /> });
+  if (f?.terawih_rakaat) featureBadges.push({ label: `Terawih ${f.terawih_rakaat}`, icon: <Moon className="h-3 w-3" /> });
+  if (f?.cooling_system?.includes("AC")) featureBadges.push({ label: "AC", icon: <Wind className="h-3 w-3" /> });
+  if (f?.kucing_count && f.kucing_count !== "Takda" && f.kucing_count !== "Tidak Pasti") {
+    featureBadges.push({ label: "Ada Kucing ���", icon: <Cat className="h-3 w-3" /> });
+  }
+
+  return (
+    <Link
+      to={`/masjid/${masjid.slug ?? masjid.id}`}
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
       className="group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-1"
     >
-      {/* Image */}
+      {/* Placeholder image area */}
       <div className="relative h-48 overflow-hidden bg-muted">
+<<<<<<< HEAD
         {masjid.coverImageUrl ? (
           <img
             src={masjid.coverImageUrl}
@@ -24,6 +48,11 @@ const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
             <MapPin className="h-12 w-12 text-muted-foreground/30" />
           </div>
         )}
+=======
+        <div className="flex h-full items-center justify-center bg-secondary">
+          <MapPin className="h-12 w-12 text-muted-foreground/30" />
+        </div>
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
 
         {/* Verification Badge */}
         <div className="absolute top-3 right-3">
@@ -37,16 +66,34 @@ const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
               Belum disahkan
             </Badge>
           )}
+<<<<<<< HEAD
+=======
+        </div>
+
+        {/* Feature Badges */}
+        <div className="absolute bottom-3 left-3 flex gap-1.5 flex-wrap">
+          {featureBadges.slice(0, 3).map((b) => (
+            <Badge
+              key={b.label}
+              variant="secondary"
+              className="bg-primary/90 text-primary-foreground font-sans text-xs backdrop-blur-sm flex items-center gap-1"
+            >
+              {b.icon}
+              {b.label}
+            </Badge>
+          ))}
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
         <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-          {masjid.name}
+          {toTitleCase(masjid.name)}
         </h3>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
+<<<<<<< HEAD
           {masjid.city}, {masjid.state}
         </p>
         <div className="mt-3 flex items-center justify-between">
@@ -62,6 +109,16 @@ const MasjidCard = ({ masjid }: { masjid: MasjidSummary }) => {
               {masjid.averageRating.toFixed(1)}
             </div>
           )}
+=======
+          {masjid.address ?? "Alamat tidak dinyatakan"}
+        </p>
+        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" />
+            {masjid.verification_count} pengesahan
+          </span>
+          <span className="capitalize text-muted-foreground/70">{masjid.status}</span>
+>>>>>>> 35a3747b3cf3c50ade4e5d6783d1170fc0589f8f
         </div>
       </div>
     </Link>

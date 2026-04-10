@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App background -->
+  <rect width="512" height="512" rx="108" fill="#1b3a2a"/>
+
+  <!-- Left minaret body -->
+  <rect x="96" y="222" width="40" height="178" rx="6" fill="#d4a843"/>
+  <!-- Left minaret pointed cap -->
+  <polygon points="116,168 92,224 140,224" fill="#d4a843"/>
+  <!-- Left minaret tip -->
+  <line x1="116" y1="150" x2="116" y2="170" stroke="#d4a843" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Right minaret body -->
+  <rect x="376" y="222" width="40" height="178" rx="6" fill="#d4a843"/>
+  <!-- Right minaret pointed cap -->
+  <polygon points="396,168 372,224 420,224" fill="#d4a843"/>
+  <!-- Right minaret tip -->
+  <line x1="396" y1="150" x2="396" y2="170" stroke="#d4a843" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Main building base -->
+  <rect x="136" y="316" width="240" height="84" rx="4" fill="#d4a843"/>
+
+  <!-- Main dome (large bezier arch) -->
+  <path d="M150,318 C150,318 148,200 256,188 C364,200 362,318 362,318Z" fill="#d4a843"/>
+
+  <!-- Central finial/spire -->
+  <line x1="256" y1="173" x2="256" y2="146" stroke="#d4a843" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Crescent moon (overlapping circles technique) -->
+  <circle cx="256" cy="136" r="16" fill="#d4a843"/>
+  <circle cx="264" cy="132" r="11" fill="#1b3a2a"/>
+
+  <!-- Main door (pointed arch) -->
+  <path d="M220,400 L220,347 Q256,319 292,347 L292,400Z" fill="#1b3a2a"/>
+
+  <!-- Left arched window -->
+  <path d="M152,370 L152,344 Q170,328 188,344 L188,370Z" fill="#1b3a2a"/>
+
+  <!-- Right arched window -->
+  <path d="M324,370 L324,344 Q342,328 360,344 L360,370Z" fill="#1b3a2a"/>
+</svg>

@@ -1,0 +1,16 @@
+{
+  "name": "JejakMasjid",
+  "short_name": "JejakMasjid",
+  "description": "Cari dan jejak masjid berhampiran anda",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a3a2a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
