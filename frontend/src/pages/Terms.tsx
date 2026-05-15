@@ -23,14 +23,14 @@ export default function Terms() {
 
             <section>
               <p>
-                Selamat datang ke <strong className="text-foreground">JejakMasjid</strong>. Dengan menggunakan platform ini, anda bersetuju untuk mematuhi Terma Perkhidmatan ini. Sila baca dengan teliti sebelum menggunakan perkhidmatan kami.
+                Selamat datang ke <strong className="text-foreground">SinggahLuhh</strong>. Dengan menggunakan platform ini, anda bersetuju untuk mematuhi Terma Perkhidmatan ini. Sila baca dengan teliti sebelum menggunakan perkhidmatan kami.
               </p>
             </section>
 
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">1. Penerimaan Terma</h2>
               <p>
-                JejakMasjid adalah platform komuniti berasaskan data crowdsource untuk membantu umat Islam mencari dan berkongsi maklumat masjid di seluruh Malaysia. Dengan mendaftar atau menggunakan platform ini, anda bersetuju dengan terma-terma ini sepenuhnya.
+                SinggahLuhh adalah platform komuniti berasaskan data crowdsource untuk membantu umat Islam mencari dan berkongsi maklumat masjid di seluruh Malaysia. Dengan mendaftar atau menggunakan platform ini, anda bersetuju dengan terma-terma ini sepenuhnya.
               </p>
             </section>
 
@@ -46,10 +46,10 @@ export default function Terms() {
 
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">3. Kandungan Sumbangan Pengguna</h2>
-              <p>Apabila anda menyumbangkan maklumat masjid, foto, atau kandungan lain ke JejakMasjid:</p>
+              <p>Apabila anda menyumbangkan maklumat masjid, foto, atau kandungan lain ke SinggahLuhh:</p>
               <ul className="list-disc ml-5 space-y-1 mt-2">
                 <li>Anda mengesahkan bahawa maklumat tersebut adalah <strong className="text-foreground">tepat dan benar</strong> mengikut pengetahuan terbaik anda</li>
-                <li>Anda memberikan JejakMasjid lesen tidak eksklusif untuk memaparkan dan menggunakan kandungan tersebut dalam platform</li>
+                <li>Anda memberikan SinggahLuhh lesen tidak eksklusif untuk memaparkan dan menggunakan kandungan tersebut dalam platform</li>
                 <li>Anda bersetuju untuk <strong className="text-foreground">tidak</strong> muat naik kandungan yang tidak benar, mengelirukan, menyinggung perasaan, atau melanggar hak cipta</li>
                 <li>Kandungan yang melanggar garis panduan komuniti boleh dipadam tanpa notis</li>
               </ul>
@@ -60,7 +60,7 @@ export default function Terms() {
               <p className="text-amber-600 dark:text-amber-400 font-medium">⚠️ Amaran Penting:</p>
               <ul className="list-disc ml-5 space-y-1 mt-2">
                 <li>Semua kod QR yang dimuat naik <strong className="text-foreground">wajib disemak oleh pentadbir</strong> sebelum dipaparkan kepada orang awam</li>
-                <li>JejakMasjid <strong className="text-foreground">tidak bertanggungjawab</strong> atas sebarang transaksi kewangan yang dilakukan melalui kod QR dalam platform ini</li>
+                <li>SinggahLuhh <strong className="text-foreground">tidak bertanggungjawab</strong> atas sebarang transaksi kewangan yang dilakukan melalui kod QR dalam platform ini</li>
                 <li>Sila <strong className="text-foreground">sahkan identiti penerima</strong> sebelum membuat sebarang pembayaran</li>
                 <li>Sebarang kod QR yang disyaki penipuan boleh dilaporkan menggunakan fungsi "Laporkan" dalam platform</li>
                 <li>Penyalahgunaan fungsi QR boleh menyebabkan akaun digantung secara kekal dan tindakan undang-undang</li>
@@ -70,7 +70,7 @@ export default function Terms() {
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">5. Ketepatan Maklumat</h2>
               <p>
-                JejakMasjid adalah platform <strong className="text-foreground">dikuasakan oleh komuniti (crowdsourced)</strong>. Walaupun kami berusaha memastikan ketepatan maklumat, kami tidak dapat menjamin bahawa semua maklumat adalah tepat pada setiap masa. Pengguna digalakkan untuk:
+                SinggahLuhh adalah platform <strong className="text-foreground">dikuasakan oleh komuniti (crowdsourced)</strong>. Walaupun kami berusaha memastikan ketepatan maklumat, kami tidak dapat menjamin bahawa semua maklumat adalah tepat pada setiap masa. Pengguna digalakkan untuk:
               </p>
               <ul className="list-disc ml-5 space-y-1 mt-2">
                 <li>Mengesahkan waktu solat dengan badan berautoriti seperti JAKIM</li>
@@ -94,7 +94,7 @@ export default function Terms() {
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">7. Sistem Reputasi dan Gamifikasi</h2>
               <p>
-                Sistem mata reputasi dan lencana adalah untuk menggalakkan sumbangan yang berkualiti. JejakMasjid berhak mengubah, menetapkan semula, atau menarik balik mata/lencana jika terdapat pelanggaran terma atau manipulasi sistem.
+                Sistem mata reputasi dan lencana adalah untuk menggalakkan sumbangan yang berkualiti. SinggahLuhh berhak mengubah, menetapkan semula, atau menarik balik mata/lencana jika terdapat pelanggaran terma atau manipulasi sistem.
               </p>
             </section>
 
@@ -111,7 +111,7 @@ export default function Terms() {
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">9. Had Liabiliti</h2>
               <p>
-                JejakMasjid disediakan "sebagaimana adanya" (as-is) tanpa sebarang jaminan. Kami tidak bertanggungjawab atas sebarang kerugian atau kerosakan yang timbul daripada penggunaan platform ini, termasuk tetapi tidak terhad kepada keputusan berdasarkan maklumat dalam platform.
+                SinggahLuhh disediakan "sebagaimana adanya" (as-is) tanpa sebarang jaminan. Kami tidak bertanggungjawab atas sebarang kerugian atau kerosakan yang timbul daripada penggunaan platform ini, termasuk tetapi tidak terhad kepada keputusan berdasarkan maklumat dalam platform.
               </p>
             </section>
 
@@ -126,9 +126,9 @@ export default function Terms() {
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">11. Hubungi Kami</h2>
               <p>Sebarang pertanyaan mengenai Terma Perkhidmatan ini:</p>
               <div className="mt-3 rounded-xl border bg-card p-4 text-foreground text-sm">
-                <p className="font-semibold">JejakMasjid</p>
+                <p className="font-semibold">SinggahLuhh</p>
                 <p className="mt-1">Emel: <a href="mailto:meraqi@gmail.com" className="text-primary hover:underline">meraqi@gmail.com</a></p>
-                <p>Laman web: <a href="https://jejakmasjid.vercel.app" className="text-primary hover:underline">jejakmasjid.vercel.app</a></p>
+                <p>Laman web: <a href="https://singgahluhh.vercel.app" className="text-primary hover:underline">singgahluhh.vercel.app</a></p>
               </div>
             </section>
 

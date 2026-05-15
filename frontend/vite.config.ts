@@ -11,8 +11,8 @@ export default defineConfig(() => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-icon.svg", "apple-touch-icon-180x180.png"],
       manifest: {
-        name: "JejakMasjid",
-        short_name: "JejakMasjid",
+        name: "SinggahLuhh",
+        short_name: "SinggahLuhh",
         description: "Cari dan jejak masjid berhampiran anda",
         theme_color: "#1b3a2a",
         background_color: "#fff8f0",

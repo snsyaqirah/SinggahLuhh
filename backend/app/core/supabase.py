@@ -1,5 +1,5 @@
 """
-Supabase client configuration for JejakMasjid.
+Supabase client configuration for SinggahLuhh.
 This module provides authenticated Supabase clients for auth operations and database queries.
 """
 from supabase import create_client, Client

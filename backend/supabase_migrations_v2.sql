@@ -1,5 +1,5 @@
 -- ============================================================
--- JejakMasjid - Additional SQL Functions (Migration v2)
+-- SinggahLuhh - Additional SQL Functions (Migration v2)
 -- Run this in Supabase SQL Editor AFTER the main schema
 -- ============================================================
 

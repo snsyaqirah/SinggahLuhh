@@ -93,8 +93,8 @@ const faqs = [
     section: "QR Derma & Wakaf",
     items: [
       {
-        q: "Adakah QR kod derma di JejakMasjid selamat?",
-        a: "QR kod yang dihantar pengguna perlu melalui semakan admin sebelum dipaparkan. Walau bagaimanapun, sentiasa semak penerima bayaran sebelum membuat sebarang transaksi. JejakMasjid tidak bertanggungjawab atas sebarang urus niaga kewangan.",
+        q: "Adakah QR kod derma di SinggahLuhh selamat?",
+        a: "QR kod yang dihantar pengguna perlu melalui semakan admin sebelum dipaparkan. Walau bagaimanapun, sentiasa semak penerima bayaran sebelum membuat sebarang transaksi. SinggahLuhh tidak bertanggungjawab atas sebarang urus niaga kewangan.",
       },
       {
         q: "Siapa yang boleh upload QR kod?",

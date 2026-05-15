@@ -5,13 +5,13 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # ── App ──────────────────────────────────────────────────────────────────
-    APP_NAME: str = "JejakMasjid API"
+    APP_NAME: str = "SinggahLuhh API"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "development"   # "development" | "staging" | "production"
 
     # ── Database ─────────────────────────────────────────────────────────────
-    DATABASE_URL: str  # e.g. postgresql+asyncpg://user:pass@localhost:5432/jejakmasjid
+    DATABASE_URL: str  # e.g. postgresql+asyncpg://user:pass@localhost:5432/singgahluhh
     
     # ── Supabase ─────────────────────────────────────────────────────────────
     SUPABASE_URL: str              # Your Supabase project URL
@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
-    EMAIL_FROM: str = "noreply@jejakmasjid.com"
+    EMAIL_FROM: str = "noreply@singgahluhh.com"
 
 
 settings = Settings()  # type: ignore[call-arg]

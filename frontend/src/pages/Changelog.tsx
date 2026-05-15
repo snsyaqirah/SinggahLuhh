@@ -49,7 +49,7 @@ const releases: Release[] = [
     version: "1.0.0",
     date: "Mac 2026",
     label: "major",
-    summary: "Pelancaran pertama JejakMasjid! 🎉",
+    summary: "Pelancaran pertama SinggahLuhh! 🎉",
     changes: [
       { type: "new", text: "Daftar akaun dengan pengesahan emel (OTP kod)." },
       { type: "new", text: "Tambah masjid baru dengan semakan radius 100m untuk elak duplikat." },
@@ -90,7 +90,7 @@ export default function Changelog() {
             </div>
             <div>
               <h1 className="font-serif text-3xl font-bold">Kemas Kini & Perubahan</h1>
-              <p className="text-sm text-muted-foreground mt-1">Sejarah versi dan perubahan platform JejakMasjid</p>
+              <p className="text-sm text-muted-foreground mt-1">Sejarah versi dan perubahan platform SinggahLuhh</p>
             </div>
           </div>
 

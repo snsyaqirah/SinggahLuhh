@@ -687,7 +687,7 @@ const MasjidDetail = () => {
             {qrItems.length > 0 && (
               <div className="rounded-2xl border bg-card p-6">
                 <h3 className="font-serif text-lg font-semibold mb-1">QR & Papan Info</h3>
-                <p className="text-xs text-muted-foreground mb-4">Sila semak QR dengan teliti sebelum scan. JejakMasjid tidak bertanggungjawab atas sebarang transaksi.</p>
+                <p className="text-xs text-muted-foreground mb-4">Sila semak QR dengan teliti sebelum scan. SinggahLuhh tidak bertanggungjawab atas sebarang transaksi.</p>
                 <div className="flex gap-3 flex-wrap">
                   {qrItems.map((q) => (
                     <div key={q.id} className="text-center relative">

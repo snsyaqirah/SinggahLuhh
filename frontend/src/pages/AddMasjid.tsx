@@ -237,11 +237,14 @@ const AddMasjid = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" />Kembali
+          <ArrowLeft className="h-4 w-4" />
+          Kembali
         </Link>
 
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-foreground">Tambah Masjid Baru</h1>
+          <h1 className="font-serif text-3xl font-bold text-foreground">
+            Tambah Masjid Baru
+          </h1>
           <p className="mt-2 text-muted-foreground">
             Kongsi info masjid ni dengan komuniti. Masjid akan muncul terus dengan tag "Belum disahkan".
           </p>
@@ -251,19 +254,9 @@ const AddMasjid = () => {
           {/* Basic Info */}
           <div className="rounded-2xl border bg-card p-6 space-y-5">
             <h3 className="font-serif text-base font-semibold">Maklumat Asas</h3>
-
             <div className="space-y-2">
               <Label htmlFor="name" className="font-medium">Nama Masjid *</Label>
-              <Input id="name" placeholder="cth: Masjid Al-Ikhlas" value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="rounded-xl bg-background" required />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address" className="font-medium">Alamat Penuh *</Label>
-              <Input id="address" placeholder="cth: No 1, Jalan Masjid, Taman Sri Muda" value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className="rounded-xl bg-background" required />
+              <Input id="name" placeholder="cth: Masjid Al-Ikhlas" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl bg-background" required />
             </div>
 
             <div className="space-y-2">
@@ -343,35 +336,8 @@ const AddMasjid = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="postcode" className="font-medium">Poskod</Label>
-              <Input id="postcode" placeholder="cth: 40150" value={form.postcode}
-                onChange={(e) => setForm({ ...form, postcode: e.target.value })}
-                className="rounded-xl bg-background" maxLength={10} />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="latitude" className="font-medium">Latitude *</Label>
-                <Input id="latitude" type="number" step="any" placeholder="cth: 3.1390" value={form.latitude}
-                  onChange={(e) => setForm({ ...form, latitude: e.target.value })}
-                  className="rounded-xl bg-background" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="longitude" className="font-medium">Longitude *</Label>
-                <Input id="longitude" type="number" step="any" placeholder="cth: 101.6869" value={form.longitude}
-                  onChange={(e) => setForm({ ...form, longitude: e.target.value })}
-                  className="rounded-xl bg-background" required />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Tip: Buka Google Maps, klik pada masjid, dan salin koordinat dari URL atau popup.
-            </p>
-
-            <div className="space-y-2">
               <Label htmlFor="description" className="font-medium">Maklumat Tambahan</Label>
-              <Textarea id="description" placeholder="cth: Masjid berhampiran pasar malam. Ada parkir luas..." value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="rounded-xl bg-background min-h-[80px]" />
+              <Textarea id="description" placeholder="cth: Masjid berhampiran pasar malam. Ada parkir luas..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="rounded-xl bg-background min-h-[80px]" />
             </div>
           </div>
 

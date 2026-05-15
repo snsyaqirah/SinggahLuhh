@@ -260,7 +260,7 @@ async def forgot_password(
     Supabase redirects to redirect_to/reset-password with #access_token in URL fragment.
     """
     from app.core.config import settings
-    default_url = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password" if settings.FRONTEND_URL else "https://jejakmasjid.vercel.app/reset-password"
+    default_url = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password" if settings.FRONTEND_URL else "https://singgahluhh.vercel.app/reset-password"
     # Use the redirect URL sent by the frontend (based on window.location.origin)
     # so it works for both localhost and production.
     redirect_url = body.redirect_to or default_url

@@ -1,5 +1,5 @@
 -- ============================================================
--- JejakMasjid — Migration v3
+-- SinggahLuhh — Migration v3
 -- Run this in the Supabase SQL Editor (once)
 -- ============================================================
 

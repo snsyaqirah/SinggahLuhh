@@ -45,9 +45,9 @@ const Header = () => {
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/pwa-icon.svg" alt="JejakMasjid" className="h-9 w-9 rounded-lg" />
+          <img src="/pwa-icon.svg" alt="SinggahLuhh" className="h-9 w-9 rounded-lg" />
           <span className="font-serif text-xl font-bold text-foreground">
-            JejakMasjid
+            SinggahLuhh
           </span>
         </Link>
 

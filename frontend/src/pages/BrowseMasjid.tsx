@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { Search, MapPin, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ const BrowseMasjid = () => {
   const filtered = allMasjids
     .filter((m) => {
       if (selectedTags.length === 0) return true;
-      const f = m.facilities as unknown as Record<string, unknown> | null;
+      const f = m.facilities as Record<string, unknown> | null;
       if (!f) return false;
       return selectedTags.every((t) => TAG_FILTER_FN[t](f));
     })
@@ -57,11 +57,11 @@ const BrowseMasjid = () => {
         </div>
 
         {/* Search */}
-        <div className="mb-4">
+        <div className="mb-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Cari nama masjid atau lokasi..."
+              placeholder="Cari nama masjid, lokasi, atau negeri..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="rounded-xl pl-11 py-6 text-base bg-card"
@@ -69,57 +69,53 @@ const BrowseMasjid = () => {
           </div>
         </div>
 
-        {/* Quick tag filters */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {QUICK_TAGS.map((tag) => (
+        {/* Filter + Sort bar */}
+        <div className="mb-6 space-y-2">
+          {/* Filter tags — horizontally scrollable on mobile, wraps on desktop */}
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 pt-1.5 text-xs font-medium text-muted-foreground">Filter:</span>
+            <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap md:flex-wrap scrollbar-none -mr-4 pr-4">
+              {QUICK_TAGS.map((tag) => (
+                <button
+                  key={tag.key}
+                  onClick={() => toggleTag(tag.key)}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    selectedTags.includes(tag.key)
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort */}
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-xs font-medium text-muted-foreground">Susun:</span>
             <button
-              key={tag.key}
-              onClick={() => toggleTag(tag.key)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                selectedTags.includes(tag.key)
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+              onClick={() => setSortBy("verification")}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                sortBy === "verification" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
               }`}
             >
-              {tag.label}
+              Paling Disahkan
             </button>
-          ))}
-          {selectedTags.length > 0 && (
             <button
-              onClick={() => setSelectedTags([])}
-              className="rounded-full px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+              onClick={() => setSortBy("name")}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${
+                sortBy === "name" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
+              }`}
             >
-              Kosongkan filter
+              <Star className="h-3 w-3" /> Nama A-Z
             </button>
-          )}
-        </div>
-
-        {/* Sort */}
-        <div className="mb-6 flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Susun:</span>
-          <button
-            onClick={() => setSortBy("verification")}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              sortBy === "verification" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
-            }`}
-          >
-            Paling Disahkan
-          </button>
-          <button
-            onClick={() => setSortBy("name")}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              sortBy === "name" ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
-            }`}
-          >
-            Nama A–Z
-          </button>
+          </div>
         </div>
 
         {/* Results */}
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          <div className="py-20 text-center text-muted-foreground">Memuatkan masjid...</div>
         ) : filtered.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((masjid) => (
@@ -135,7 +131,7 @@ const BrowseMasjid = () => {
             <p className="mt-2 text-muted-foreground">
               Cuba carian lain atau tambah masjid baru!
             </p>
-            <Button asChild className="mt-6 rounded-xl">
+            <Button asChild className="mt-4 rounded-xl">
               <Link to="/add">Tambah Masjid</Link>
             </Button>
           </div>

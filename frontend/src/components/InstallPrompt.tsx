@@ -48,10 +48,10 @@ const InstallPrompt = () => {
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-sm animate-fade-in-up">
       <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-xl shadow-black/10">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-          <img src="/pwa-64x64.png" alt="JejakMasjid" className="h-7 w-7 rounded-md" />
+          <img src="/pwa-64x64.png" alt="SinggahLuhh" className="h-7 w-7 rounded-md" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">Pasang JejakMasjid</p>
+          <p className="text-sm font-semibold text-foreground">Pasang SinggahLuhh</p>
           <p className="text-xs text-muted-foreground leading-snug">
             Simpan ke skrin utama — guna macam app biasa!
           </p>

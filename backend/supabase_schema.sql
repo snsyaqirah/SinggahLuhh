@@ -1,5 +1,5 @@
 -- ============================================
--- JejakMasjid - Complete Supabase Schema
+-- SinggahLuhh - Complete Supabase Schema
 -- Copy & Paste this entire file into Supabase SQL Editor
 -- ============================================
 

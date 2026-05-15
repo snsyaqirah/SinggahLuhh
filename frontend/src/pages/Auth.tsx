@@ -149,7 +149,7 @@ const Auth = () => {
       if (data.session && data.user) {
         // Email confirm is OFF — user is auto-confirmed, log in immediately
         authenticate(data.user as { id: string; email: string; user_metadata: Record<string, unknown> });
-        toast({ title: "Akaun berjaya didaftarkan! 🎉", description: "Selamat datang ke JejakMasjid." });
+        toast({ title: "Akaun berjaya didaftarkan! 🎉", description: "Selamat datang ke SinggahLuhh." });
         navigate("/");
       } else {
         toast({
@@ -180,7 +180,7 @@ const Auth = () => {
     try {
       const data = await authApi.verifyOtp({ email, token: otpCode });
       authenticate(data.user as { id: string; email: string; user_metadata: Record<string, unknown> });
-        toast({ title: "Akaun berjaya disahkan! 🎉", description: "Selamat datang ke JejakMasjid." });
+        toast({ title: "Akaun berjaya disahkan! 🎉", description: "Selamat datang ke SinggahLuhh." });
       navigate("/");
     } catch (err) {
       toast({
@@ -223,7 +223,7 @@ const Auth = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
                 <Moon className="h-6 w-6 text-primary-foreground" />
               </div>
-              <h1 className="font-serif text-2xl font-bold text-foreground">JejakMasjid</h1>
+              <h1 className="font-serif text-2xl font-bold text-foreground">SinggahLuhh</h1>
             </div>
 
             {/* ── OTP Step ── */}

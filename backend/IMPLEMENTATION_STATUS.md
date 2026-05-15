@@ -1,4 +1,4 @@
-# JejakMasjid Backend - Setup & Implementation Guide
+# SinggahLuhh Backend - Setup & Implementation Guide
 
 ## ✅ What's Been Completed:
 

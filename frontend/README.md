@@ -1,4 +1,4 @@
-# JejakMasjid
+# SinggahLuhh
 
 A web app to find and track mosques near you.
 

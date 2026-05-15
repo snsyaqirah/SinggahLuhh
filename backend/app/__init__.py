@@ -1,1 +1,1 @@
-"""JejakMasjid — FastAPI backend package."""
+"""SinggahLuhh — FastAPI backend package."""

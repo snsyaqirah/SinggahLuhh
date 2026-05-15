@@ -23,10 +23,10 @@ export default function PrivacyPolicy() {
 
             <section>
               <p>
-                JejakMasjid ("kami", "platform") menghormati privasi anda dan komited untuk melindungi maklumat peribadi anda selaras dengan <strong className="text-foreground">Akta Perlindungan Data Peribadi 2010 (PDPA)</strong> Malaysia.
+                SinggahLuhh ("kami", "platform") menghormati privasi anda dan komited untuk melindungi maklumat peribadi anda selaras dengan <strong className="text-foreground">Akta Perlindungan Data Peribadi 2010 (PDPA)</strong> Malaysia.
               </p>
               <p className="mt-2">
-                Dasar Privasi ini menerangkan bagaimana kami mengumpul, menggunakan, menyimpan dan melindungi data anda apabila anda menggunakan laman web dan aplikasi JejakMasjid.
+                Dasar Privasi ini menerangkan bagaimana kami mengumpul, menggunakan, menyimpan dan melindungi data anda apabila anda menggunakan laman web dan aplikasi SinggahLuhh.
               </p>
             </section>
 
@@ -108,7 +108,7 @@ export default function PrivacyPolicy() {
 
             <section>
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">7. Kuki (Cookies)</h2>
-              <p>JejakMasjid menggunakan kuki minimum yang diperlukan untuk:</p>
+              <p>SinggahLuhh menggunakan kuki minimum yang diperlukan untuk:</p>
               <ul className="list-disc ml-5 space-y-1 mt-2">
                 <li>Mengekalkan sesi log masuk anda (token disimpan dalam localStorage)</li>
                 <li>Keutamaan antara muka pengguna</li>
@@ -130,9 +130,9 @@ export default function PrivacyPolicy() {
               <h2 className="font-serif text-xl font-semibold text-foreground mb-3">10. Hubungi Kami</h2>
               <p>Sebarang pertanyaan, aduan atau permintaan berkaitan privasi, sila hubungi:</p>
               <div className="mt-3 rounded-xl border bg-card p-4 text-foreground text-sm">
-                <p className="font-semibold">JejakMasjid — Pegawai Perlindungan Data</p>
+                <p className="font-semibold">SinggahLuhh — Pegawai Perlindungan Data</p>
                 <p className="mt-1">Emel: <a href="mailto:meraqi@gmail.com" className="text-primary hover:underline">meraqi@gmail.com</a></p>
-                <p>Laman web: <a href="https://jejakmasjid.vercel.app" className="text-primary hover:underline">jejakmasjid.vercel.app</a></p>
+                <p>Laman web: <a href="https://singgahluhh.vercel.app" className="text-primary hover:underline">singgahluhh.vercel.app</a></p>
               </div>
             </section>
 

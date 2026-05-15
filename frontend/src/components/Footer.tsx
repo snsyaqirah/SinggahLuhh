@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="border-t py-6">
       <div className="container mx-auto px-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-muted-foreground text-center">
-          © {new Date().getFullYear()} JejakMasjid · by{" "}
+          © {new Date().getFullYear()} SinggahLuhh · by{" "}
           <a
             href="https://syaqi.dev"
             target="_blank"
