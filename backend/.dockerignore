@@ -1,10 +1,11 @@
-.venv/
-__pycache__/
+.venv
+__pycache__
 *.pyc
 *.pyo
 .env
 .env.*
-.git/
+.git
 .gitignore
 *.sql
 *.md
+package-lock.json
