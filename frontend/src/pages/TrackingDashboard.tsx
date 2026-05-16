@@ -297,7 +297,7 @@ const TrackingDashboard = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-primary">
-                          {visit.visit_type.charAt(0).toUpperCase()}
+                          {visit.visit_type?.charAt(0)?.toUpperCase() ?? "?"}
                         </div>
                         <div>
                           <p className="font-medium text-foreground text-sm">{visit.masjid_name ?? "Masjid"}</p>
