@@ -691,6 +691,53 @@ export const trendingApi = {
     request<TrendingMasjid[]>(`/api/v1/trending?limit=${limit}`),
 };
 
+// ── Prayer Groups ──────────────────────────────────────────────────
+
+export interface GroupItem {
+  id: string;
+  name: string;
+  type: string;
+  inviteCode: string;
+  createdBy: string;
+  maxMembers: number;
+  memberCount: number;
+  createdAt: string;
+}
+
+export interface GroupMember {
+  userId: string;
+  fullName: string | null;
+  role: string;
+  joinedAt: string;
+}
+
+export interface RecentVisit {
+  userId: string;
+  fullName: string | null;
+  visitType: string;
+  createdAt: string;
+  masjidName: string | null;
+  masjidSlug: string | null;
+}
+
+export interface GroupDetail extends GroupItem {
+  members: GroupMember[];
+  recentActivity: RecentVisit[];
+}
+
+export const groupsApi = {
+  list: () => request<GroupItem[]>("/api/v1/groups"),
+  get: (id: string) => request<GroupDetail>(`/api/v1/groups/${id}`),
+  create: (body: { name: string; type: string }) =>
+    request<GroupItem>("/api/v1/groups", { method: "POST", body: JSON.stringify(body) }),
+  join: (inviteCode: string) =>
+    request<GroupItem>(`/api/v1/groups/join?invite_code=${inviteCode}`, { method: "POST" }),
+  leave: (id: string) =>
+    request(`/api/v1/groups/${id}/leave`, { method: "DELETE" }),
+  remove: (id: string) =>
+    request(`/api/v1/groups/${id}`, { method: "DELETE" }),
+};
+
 export const iftarApi = {
   list: (masjidId?: string, season?: string) => {
     const params = new URLSearchParams();

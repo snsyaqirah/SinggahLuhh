@@ -18,6 +18,8 @@ import AdminPanel from "./pages/AdminPanel";
 import MapView from "./pages/MapView";
 import Bookmarks from "./pages/Bookmarks";
 import IbadahSaya from "./pages/IbadahSaya";
+import PrayerGroups from "./pages/PrayerGroups";
+import PrayerGroupDetail from "./pages/PrayerGroupDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
@@ -46,6 +48,8 @@ const App = () => (
             <Route path="/map" element={<MapView />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/ibadah" element={<IbadahSaya />} />
+            <Route path="/groups" element={<PrayerGroups />} />
+            <Route path="/groups/:id" element={<PrayerGroupDetail />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

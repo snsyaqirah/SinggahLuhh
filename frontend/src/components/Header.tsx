@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, LogOut, User, PlusCircle, ShieldCheck, Bookmark, Star } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, PlusCircle, ShieldCheck, Bookmark, Star, Users } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -102,6 +102,12 @@ const Header = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link to="/groups" className="flex items-center gap-2 cursor-pointer">
+                    <Users className="h-4 w-4" />
+                    Kumpulan Doa
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/add" className="flex items-center gap-2 cursor-pointer">
                     <PlusCircle className="h-4 w-4" />
                     Tambah Tempat Solat
@@ -182,6 +188,14 @@ const Header = () => {
               >
                 <Star className="h-4 w-4" />
                 Ibadah Saya
+              </Link>
+              <Link
+                to="/groups"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+              >
+                <Users className="h-4 w-4" />
+                Kumpulan Doa
               </Link>
               <Link
                 to="/add"
