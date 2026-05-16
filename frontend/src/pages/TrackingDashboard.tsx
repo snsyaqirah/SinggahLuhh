@@ -12,6 +12,14 @@ import { Link, Navigate } from "react-router-dom";
 import type { UserStats, VisitHistory, Visit, PrayerType } from "@/types";
 import { getReputationTier, getTierProgress, TIER_CONFIG } from "@/lib/utils";
 
+function censorName(name: string, isMe: boolean): string {
+  if (isMe) return name;
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  if (parts.length === 1) return first;
+  return `${first} ${parts[1].charAt(0).toUpperCase()}.`;
+}
+
 const PRAYER_LABELS: Record<PrayerType, string> = {
   subuh: "Subuh", zohor: "Zohor", asar: "Asar",
   maghrib: "Maghrib", isyak: "Isyak", jumaat: "Jumaat",
@@ -39,9 +47,11 @@ const TrackingDashboard = () => {
     enabled: !!user,
   });
 
+  const [leaderboardState, setLeaderboardState] = useState("");
+
   const { data: leaderboard } = useQuery({
-    queryKey: ["dashboard", "leaderboard"],
-    queryFn: () => dashboardApi.leaderboard(10),
+    queryKey: ["dashboard", "leaderboard", leaderboardState],
+    queryFn: () => dashboardApi.leaderboard(10, leaderboardState || undefined),
     enabled: !!user,
   });
 
@@ -313,10 +323,22 @@ const TrackingDashboard = () => {
                   <Users className="h-5 w-5 text-accent" />
                   <h3 className="font-serif text-lg font-semibold">Papan Pemimpin</h3>
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">
-                  {leaderboard.totalUsers} ahli
-                  {leaderboard.userRank && ` · Kedudukan anda: #${leaderboard.userRank}`}
-                </p>
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                  <p className="text-xs text-muted-foreground flex-1">
+                    {leaderboard.totalUsers} ahli
+                    {leaderboard.userRank && ` · Kedudukan anda: #${leaderboard.userRank}`}
+                  </p>
+                  <select
+                    value={leaderboardState}
+                    onChange={(e) => setLeaderboardState(e.target.value)}
+                    className="text-xs rounded-lg border bg-background px-2 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="">Seluruh Malaysia</option>
+                    {MALAYSIA_STATES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="space-y-2">
                   {leaderboard.entries.map((entry) => {
                     const tier = getReputationTier(entry.reputationPoints);
@@ -333,7 +355,7 @@ const TrackingDashboard = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-foreground truncate">
-                            {entry.fullName}{isMe && <span className="ml-1.5 text-xs text-primary font-normal">(anda)</span>}
+                            {censorName(entry.fullName, isMe)}{isMe && <span className="ml-1.5 text-xs text-primary font-normal">(anda)</span>}
                           </p>
                           <p className="text-xs text-muted-foreground">{entry.totalVisits} kunjungan · streak {entry.streakCount}</p>
                         </div>

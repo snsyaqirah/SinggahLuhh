@@ -27,9 +27,9 @@ import Footer from "@/components/Footer";
 import {
   masjidsApi, verificationsApi, checkinsApi, liveUpdatesApi,
   facilitiesApi, mediaApi, profileApi, bookmarksApi, diaryApi,
-  eventsApi, announcementsApi, ApiError,
+  eventsApi, announcementsApi, lostFoundApi, iftarApi, ApiError,
 } from "@/lib/api";
-import type { MediaType, DiaryEntry, EventItem, AnnouncementItem } from "@/lib/api";
+import type { MediaType, DiaryEntry, EventItem, AnnouncementItem, LostFoundPost, IftarPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { Masjid, Facilities, LiveStatus, VerificationStatus } from "@/types";
@@ -124,6 +124,25 @@ const MasjidDetail = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   // Diary
   const [diaryText, setDiaryText] = useState("");
+  // Events form
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [newEventTitle, setNewEventTitle] = useState("");
+  const [newEventType, setNewEventType] = useState("kuliah");
+  const [newEventStartsAt, setNewEventStartsAt] = useState("");
+  const [newEventDesc, setNewEventDesc] = useState("");
+  // Announcements form
+  const [showAnnForm, setShowAnnForm] = useState(false);
+  const [newAnnTitle, setNewAnnTitle] = useState("");
+  const [newAnnBody, setNewAnnBody] = useState("");
+  const [newAnnCategory, setNewAnnCategory] = useState("umum");
+  // Lost & Found form
+  const [showLFForm, setShowLFForm] = useState(false);
+  const [newLFDesc, setNewLFDesc] = useState("");
+  // Iftar form
+  const [showIftarForm, setShowIftarForm] = useState(false);
+  const [newIftarType, setNewIftarType] = useState("other");
+  const [newIftarDesc, setNewIftarDesc] = useState("");
+  const [newIftarRating, setNewIftarRating] = useState("");
 
   // ── queries ───────────────────────────────────────────────────
   const { data: masjid, isLoading, isError } = useQuery({
@@ -184,6 +203,18 @@ const MasjidDetail = () => {
     queryKey: ["diary", masjid?.id],
     queryFn: () => diaryApi.list(masjid!.id),
     enabled: !!masjid?.id && !!user,
+  });
+
+  const { data: lostFoundEntries, refetch: refetchLF } = useQuery({
+    queryKey: ["lost-found", masjid?.id],
+    queryFn: () => lostFoundApi.list(masjid!.id),
+    enabled: !!masjid?.id,
+  });
+
+  const { data: iftarEntries, refetch: refetchIftar } = useQuery({
+    queryKey: ["iftar", masjid?.id],
+    queryFn: () => iftarApi.list(masjid!.id),
+    enabled: !!masjid?.id,
   });
 
   // ── mutations ─────────────────────────────────────────────────
@@ -381,6 +412,67 @@ const MasjidDetail = () => {
       setDiaryText("");
       refetchDiary();
       toast({ title: "Nota disimpan" });
+    },
+  });
+
+  const addEventMutation = useMutation({
+    mutationFn: () => eventsApi.create({
+      masjidId: masjid!.id,
+      title: newEventTitle.trim(),
+      eventType: newEventType,
+      startsAt: newEventStartsAt,
+      description: newEventDesc || undefined,
+    }),
+    onSuccess: () => {
+      setShowEventForm(false);
+      setNewEventTitle(""); setNewEventType("kuliah"); setNewEventStartsAt(""); setNewEventDesc("");
+      queryClient.invalidateQueries({ queryKey: ["events", masjid?.id] });
+      toast({ title: "Program ditambah! 📅" });
+    },
+  });
+
+  const addAnnMutation = useMutation({
+    mutationFn: () => announcementsApi.create({
+      masjidId: masjid!.id,
+      title: newAnnTitle.trim(),
+      body: newAnnBody.trim(),
+      category: newAnnCategory,
+    }),
+    onSuccess: () => {
+      setShowAnnForm(false);
+      setNewAnnTitle(""); setNewAnnBody(""); setNewAnnCategory("umum");
+      queryClient.invalidateQueries({ queryKey: ["announcements", masjid?.id] });
+      toast({ title: "Pengumuman dihantar! 📢" });
+    },
+  });
+
+  const addLFMutation = useMutation({
+    mutationFn: () => lostFoundApi.create({ masjidId: masjid!.id, description: newLFDesc.trim() }),
+    onSuccess: () => {
+      setShowLFForm(false);
+      setNewLFDesc("");
+      refetchLF();
+      toast({ title: "Post dikongsi! 🔍" });
+    },
+  });
+
+  const resolveLFMutation = useMutation({
+    mutationFn: (id: string) => lostFoundApi.resolve(id),
+    onSuccess: () => refetchLF(),
+  });
+
+  const addIftarMutation = useMutation({
+    mutationFn: () => iftarApi.create({
+      masjidId: masjid!.id,
+      iftarType: newIftarType,
+      description: newIftarDesc || undefined,
+      rating: newIftarRating ? parseInt(newIftarRating) : undefined,
+    }),
+    onSuccess: () => {
+      setShowIftarForm(false);
+      setNewIftarType("other"); setNewIftarDesc(""); setNewIftarRating("");
+      refetchIftar();
+      toast({ title: "Maklumat iftar dikongsi! 🍽️" });
     },
   });
 
@@ -808,59 +900,128 @@ const MasjidDetail = () => {
             </div>
 
             {/* Announcements */}
-            {announcements && (announcements as AnnouncementItem[]).length > 0 && (
+            {(user || ((announcements as AnnouncementItem[] | undefined)?.length ?? 0) > 0) && (
               <div className="rounded-2xl border bg-card p-6">
-                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Megaphone className="h-5 w-5 text-primary" /> Pengumuman
-                </h3>
-                <div className="space-y-3">
-                  {(announcements as AnnouncementItem[]).map((ann) => (
-                    <div
-                      key={ann.id}
-                      className={`rounded-xl p-3 ${ann.isPinned ? "bg-primary/5 border border-primary/20" : "bg-secondary/50"}`}
-                    >
-                      {ann.isPinned && (
-                        <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">📌 Disematkan</span>
-                      )}
-                      <p className="text-sm font-semibold mt-0.5">{ann.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{ann.body}</p>
-                      <p className="text-[10px] text-muted-foreground mt-2">
-                        {new Date(ann.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-serif text-lg font-semibold flex items-center gap-2">
+                    <Megaphone className="h-5 w-5 text-primary" /> Pengumuman
+                  </h3>
+                  {user && (
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs gap-1" onClick={() => setShowAnnForm((v) => !v)}>
+                      <Plus className="h-3.5 w-3.5" /> {showAnnForm ? "Tutup" : "Tambah"}
+                    </Button>
+                  )}
                 </div>
+                {showAnnForm && (
+                  <div className="mb-4 space-y-3 rounded-xl border bg-secondary/30 p-4">
+                    <div>
+                      <Label className="text-xs">Tajuk *</Label>
+                      <Input value={newAnnTitle} onChange={(e) => setNewAnnTitle(e.target.value)} placeholder="Contoh: Kuliah Maghrib malam ini" className="mt-1 rounded-xl text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Kategori</Label>
+                      <Select value={newAnnCategory} onValueChange={setNewAnnCategory}>
+                        <SelectTrigger className="mt-1 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {[["umum","Umum"],["solat","Solat"],["event","Acara"],["iftar","Iftar"],["others","Lain-lain"]].map(([v, l]) => (
+                            <SelectItem key={v} value={v}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Kandungan *</Label>
+                      <Textarea value={newAnnBody} onChange={(e) => setNewAnnBody(e.target.value)} placeholder="Butiran pengumuman..." className="mt-1 rounded-xl text-sm min-h-[80px]" />
+                    </div>
+                    <Button className="w-full rounded-xl" size="sm" disabled={!newAnnTitle.trim() || !newAnnBody.trim() || addAnnMutation.isPending} onClick={() => addAnnMutation.mutate()}>
+                      {addAnnMutation.isPending ? "Menghantar..." : "Hantar Pengumuman"}
+                    </Button>
+                  </div>
+                )}
+                {(announcements as AnnouncementItem[] | undefined)?.length ? (
+                  <div className="space-y-3">
+                    {(announcements as AnnouncementItem[]).map((ann) => (
+                      <div key={ann.id} className={`rounded-xl p-3 ${ann.isPinned ? "bg-primary/5 border border-primary/20" : "bg-secondary/50"}`}>
+                        {ann.isPinned && <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">📌 Disematkan</span>}
+                        <p className="text-sm font-semibold mt-0.5">{ann.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{ann.body}</p>
+                        <p className="text-[10px] text-muted-foreground mt-2">
+                          {new Date(ann.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !showAnnForm && <p className="text-xs text-muted-foreground text-center py-4">Tiada pengumuman terkini</p>
+                )}
               </div>
             )}
 
             {/* Events */}
-            {events && (events as EventItem[]).length > 0 && (
+            {(user || ((events as EventItem[] | undefined)?.length ?? 0) > 0) && (
               <div className="rounded-2xl border bg-card p-6">
-                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-primary" /> Aktiviti & Program
-                </h3>
-                <div className="space-y-3">
-                  {(events as EventItem[]).map((ev) => (
-                    <div key={ev.id} className="flex items-start gap-3 rounded-xl bg-secondary/50 p-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                        <span className="text-base">
-                          {ev.eventType === "iftar" ? "🍽️" : ev.eventType === "khatam" ? "📖" : "📅"}
-                        </span>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-serif text-lg font-semibold flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" /> Aktiviti & Program
+                  </h3>
+                  {user && (
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs gap-1" onClick={() => setShowEventForm((v) => !v)}>
+                      <Plus className="h-3.5 w-3.5" /> {showEventForm ? "Tutup" : "Tambah"}
+                    </Button>
+                  )}
+                </div>
+                {showEventForm && (
+                  <div className="mb-4 space-y-3 rounded-xl border bg-secondary/30 p-4">
+                    <div>
+                      <Label className="text-xs">Nama Program *</Label>
+                      <Input value={newEventTitle} onChange={(e) => setNewEventTitle(e.target.value)} placeholder="Contoh: Kuliah Isyak Malam Jumaat" className="mt-1 rounded-xl text-sm" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Jenis</Label>
+                        <Select value={newEventType} onValueChange={setNewEventType}>
+                          <SelectTrigger className="mt-1 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {[["kuliah","Kuliah"],["iftar","Iftar"],["gotong_royong","Gotong Royong"],["khatam","Khatam"],["others","Lain-lain"]].map(([v, l]) => (
+                              <SelectItem key={v} value={v}>{l}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold">{ev.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(ev.startsAt).toLocaleDateString("ms-MY", {
-                            weekday: "short", day: "numeric", month: "short", year: "numeric",
-                          })}
-                        </p>
-                        {ev.description && (
-                          <p className="text-xs text-muted-foreground mt-1 truncate">{ev.description}</p>
-                        )}
+                      <div>
+                        <Label className="text-xs">Tarikh & Masa *</Label>
+                        <Input type="datetime-local" value={newEventStartsAt} onChange={(e) => setNewEventStartsAt(e.target.value)} className="mt-1 rounded-xl text-sm" />
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <Label className="text-xs">Penerangan (pilihan)</Label>
+                      <Input value={newEventDesc} onChange={(e) => setNewEventDesc(e.target.value)} placeholder="Butiran tambahan..." className="mt-1 rounded-xl text-sm" />
+                    </div>
+                    <Button className="w-full rounded-xl" size="sm" disabled={!newEventTitle.trim() || !newEventStartsAt || addEventMutation.isPending} onClick={() => addEventMutation.mutate()}>
+                      {addEventMutation.isPending ? "Menyimpan..." : "Tambah Program"}
+                    </Button>
+                  </div>
+                )}
+                {(events as EventItem[] | undefined)?.length ? (
+                  <div className="space-y-3">
+                    {(events as EventItem[]).map((ev) => (
+                      <div key={ev.id} className="flex items-start gap-3 rounded-xl bg-secondary/50 p-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                          <span className="text-base">{ev.eventType === "iftar" ? "🍽️" : ev.eventType === "khatam" ? "📖" : "📅"}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold">{ev.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(ev.startsAt).toLocaleDateString("ms-MY", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                          </p>
+                          {ev.description && <p className="text-xs text-muted-foreground mt-1 truncate">{ev.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !showEventForm && <p className="text-xs text-muted-foreground text-center py-4">Tiada program akan datang</p>
+                )}
               </div>
             )}
 
@@ -896,6 +1057,133 @@ const MasjidDetail = () => {
                 </Button>
               </div>
             )}
+
+            {/* Lost & Found */}
+            <div className="rounded-2xl border bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif text-lg font-semibold flex items-center gap-2">
+                  🔍 Hilang & Jumpa
+                </h3>
+                {user && (
+                  <Button variant="outline" size="sm" className="rounded-lg text-xs gap-1" onClick={() => setShowLFForm((v) => !v)}>
+                    <Plus className="h-3.5 w-3.5" /> {showLFForm ? "Tutup" : "Pos"}
+                  </Button>
+                )}
+              </div>
+              {showLFForm && (
+                <div className="mb-4 space-y-3 rounded-xl border bg-secondary/30 p-4">
+                  <Label className="text-xs">Penerangan *</Label>
+                  <Textarea
+                    value={newLFDesc}
+                    onChange={(e) => setNewLFDesc(e.target.value)}
+                    placeholder="Contoh: Hilang — dompet hitam berhampiran wudhu. Atau: Jumpa — kunci kereta di saf hadapan."
+                    className="rounded-xl text-sm min-h-[80px]"
+                  />
+                  <Button className="w-full rounded-xl" size="sm" disabled={newLFDesc.trim().length < 10 || addLFMutation.isPending} onClick={() => addLFMutation.mutate()}>
+                    {addLFMutation.isPending ? "Menghantar..." : "Kongsi Post"}
+                  </Button>
+                </div>
+              )}
+              {(lostFoundEntries as LostFoundPost[] | undefined)?.length ? (
+                <div className="space-y-3">
+                  {(lostFoundEntries as LostFoundPost[]).map((lf) => (
+                    <div key={lf.id} className={`rounded-xl p-3 ${lf.isResolved ? "opacity-50" : "bg-secondary/50"}`}>
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm leading-relaxed">{lf.description}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            {new Date(lf.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                            {lf.isResolved && " · ✅ Selesai"}
+                          </p>
+                        </div>
+                        {user && lf.userId === user.id && !lf.isResolved && (
+                          <button
+                            onClick={() => resolveLFMutation.mutate(lf.id)}
+                            className="shrink-0 text-[10px] font-medium text-accent hover:underline"
+                          >
+                            Tandai Selesai
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !showLFForm && <p className="text-xs text-muted-foreground text-center py-4">Tiada post hilang & jumpa</p>
+              )}
+              {!user && (
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  <Link to="/auth" className="text-primary font-semibold hover:underline">Log masuk</Link> untuk pos
+                </p>
+              )}
+            </div>
+
+            {/* Iftar Thread */}
+            <div className="rounded-2xl border bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif text-lg font-semibold flex items-center gap-2">
+                  🍽️ Thread Iftar
+                </h3>
+                {user && (
+                  <Button variant="outline" size="sm" className="rounded-lg text-xs gap-1" onClick={() => setShowIftarForm((v) => !v)}>
+                    <Plus className="h-3.5 w-3.5" /> {showIftarForm ? "Tutup" : "Kongsi"}
+                  </Button>
+                )}
+              </div>
+              {showIftarForm && (
+                <div className="mb-4 space-y-3 rounded-xl border bg-secondary/30 p-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Jenis Iftar</Label>
+                      <Select value={newIftarType} onValueChange={setNewIftarType}>
+                        <SelectTrigger className="mt-1 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {[["talam","Talam"],["kotak","Kotak"],["buffet","Buffet"],["diy","Bawa Sendiri"],["other","Lain-lain"]].map(([v, l]) => (
+                            <SelectItem key={v} value={v}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Rating (1–5)</Label>
+                      <Input type="number" min="1" max="5" value={newIftarRating} onChange={(e) => setNewIftarRating(e.target.value)} placeholder="5" className="mt-1 rounded-xl text-sm" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Komen (pilihan)</Label>
+                    <Textarea value={newIftarDesc} onChange={(e) => setNewIftarDesc(e.target.value)} placeholder="Contoh: Nasi lemak + lauk 3 jenis, sedap gila!" className="mt-1 rounded-xl text-sm min-h-[60px]" />
+                  </div>
+                  <Button className="w-full rounded-xl" size="sm" disabled={addIftarMutation.isPending} onClick={() => addIftarMutation.mutate()}>
+                    {addIftarMutation.isPending ? "Menghantar..." : "Kongsi Iftar"}
+                  </Button>
+                </div>
+              )}
+              {(iftarEntries as IftarPost[] | undefined)?.length ? (
+                <div className="space-y-3">
+                  {(iftarEntries as IftarPost[]).map((it) => (
+                    <div key={it.id} className="rounded-xl bg-secondary/50 p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold capitalize">{it.iftarType ?? "Iftar"}</span>
+                        {it.rating && (
+                          <span className="text-xs text-amber-500">{"★".repeat(it.rating)}{"☆".repeat(5 - it.rating)}</span>
+                        )}
+                      </div>
+                      {it.description && <p className="text-xs text-muted-foreground leading-relaxed">{it.description}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {new Date(it.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !showIftarForm && <p className="text-xs text-muted-foreground text-center py-4">Belum ada ulasan iftar</p>
+              )}
+              {!user && (
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  <Link to="/auth" className="text-primary font-semibold hover:underline">Log masuk</Link> untuk kongsi
+                </p>
+              )}
+            </div>
           </div>
 
           {/* ── Sidebar ── */}

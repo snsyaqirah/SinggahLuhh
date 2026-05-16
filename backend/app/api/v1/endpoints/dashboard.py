@@ -118,6 +118,7 @@ async def get_my_badges(
 @router.get("/leaderboard", response_model=LeaderboardResponse)
 async def get_leaderboard(
     limit: int = Query(10, ge=1, le=50),
+    state: str | None = Query(None),
     current_user: dict | None = Depends(get_current_user_optional),
     supabase: Client = Depends(get_supabase_admin),
 ):
@@ -126,10 +127,13 @@ async def get_leaderboard(
     Authenticated users also see their own rank.
     Uses 3 batched queries instead of N queries.
     """
-    # Top N profiles
-    top_res = supabase.table('profiles').select(
+    # Top N profiles (optionally filtered by state)
+    top_q = supabase.table('profiles').select(
         'id, full_name, reputation_points, streak_count'
-    ).order('reputation_points', desc=True).limit(limit).execute()
+    ).order('reputation_points', desc=True).limit(limit)
+    if state:
+        top_q = top_q.eq('state', state)
+    top_res = top_q.execute()
 
     top_profiles = top_res.data or []
     top_ids = [p['id'] for p in top_profiles]
@@ -172,15 +176,19 @@ async def get_leaderboard(
     user_rank: int | None = None
     total_users = 0
     if current_user:
-        rank_res = supabase.table('profiles').select(
-            'id'
-        ).order('reputation_points', desc=True).execute()
+        rank_q = supabase.table('profiles').select('id').order('reputation_points', desc=True)
+        if state:
+            rank_q = rank_q.eq('state', state)
+        rank_res = rank_q.execute()
         all_ids = [r['id'] for r in (rank_res.data or [])]
         total_users = len(all_ids)
         if current_user['id'] in all_ids:
             user_rank = all_ids.index(current_user['id']) + 1
     else:
-        total_res = supabase.table('profiles').select('id', count='exact').execute()
+        total_q = supabase.table('profiles').select('id', count='exact')
+        if state:
+            total_q = total_q.eq('state', state)
+        total_res = total_q.execute()
         total_users = total_res.count or 0
 
     return LeaderboardResponse(

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import auth, masjids_new, profile
 from app.api.v1.endpoints import checkin, live_updates_new, verification_new, dashboard, facilities_new, feedback
-from app.api.v1.endpoints import bookmarks, diary, khatam, special_prayers, events, announcements
+from app.api.v1.endpoints import bookmarks, diary, khatam, special_prayers, events, announcements, lost_found, iftar
 
 router = APIRouter(prefix="/api/v1")
 
@@ -21,3 +21,5 @@ router.include_router(khatam.router,              prefix="/khatam",            t
 router.include_router(special_prayers.router,     prefix="/special-prayers",   tags=["special-prayers"])
 router.include_router(events.router,              prefix="/events",            tags=["events"])
 router.include_router(announcements.router,       prefix="/announcements",     tags=["announcements"])
+router.include_router(lost_found.router,          prefix="/lost-found",        tags=["lost-found"])
+router.include_router(iftar.router,               prefix="/iftar",             tags=["iftar"])

@@ -372,8 +372,10 @@ export const liveUpdatesApi = {
 export const dashboardApi = {
   stats: () => request<UserStats>("/api/v1/dashboard/stats"),
   badges: () => request<UserBadge[]>("/api/v1/dashboard/badges"),
-  leaderboard: (limit = 10) =>
-    request<{
+  leaderboard: (limit = 10, state?: string) => {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (state) params.set("state", state);
+    return request<{
       entries: Array<{
         rank: number;
         userId: string;
@@ -385,7 +387,8 @@ export const dashboardApi = {
       }>;
       userRank: number | null;
       totalUsers: number;
-    }>(`/api/v1/dashboard/leaderboard?limit=${limit}`),
+    }>(`/api/v1/dashboard/leaderboard?${params}`);
+  },
 };
 
 // ── Public Stats ──────────────────────────────────────────────────
@@ -630,4 +633,55 @@ export const feedbackApi = {
       user_id: string | null;
       created_at: string;
     }>>("/api/v1/feedback/admin"),
+};
+
+// ── Lost & Found ──────────────────────────────────────────────────
+
+export interface LostFoundPost {
+  id: string;
+  masjidId: string;
+  description: string;
+  isResolved: boolean;
+  createdAt: string;
+  expiresAt: string;
+  userId: string | null;
+}
+
+export const lostFoundApi = {
+  list: (masjidId?: string) => {
+    const qs = masjidId ? `?masjid_id=${masjidId}` : "";
+    return request<LostFoundPost[]>(`/api/v1/lost-found${qs}`);
+  },
+  create: (body: { masjidId: string; description: string }) =>
+    request<LostFoundPost>("/api/v1/lost-found", { method: "POST", body: JSON.stringify(body) }),
+  resolve: (id: string) =>
+    request<{ ok: boolean }>(`/api/v1/lost-found/${id}/resolve`, { method: "PATCH" }),
+  remove: (id: string) =>
+    request(`/api/v1/lost-found/${id}`, { method: "DELETE" }),
+};
+
+// ── Iftar Thread ──────────────────────────────────────────────────
+
+export interface IftarPost {
+  id: string;
+  masjidId: string;
+  iftarType: string | null;
+  description: string | null;
+  rating: number | null;
+  ramadanSeason: string;
+  createdAt: string;
+  userId: string | null;
+}
+
+export const iftarApi = {
+  list: (masjidId?: string, season?: string) => {
+    const params = new URLSearchParams();
+    if (masjidId) params.set("masjid_id", masjidId);
+    if (season) params.set("season", season);
+    return request<IftarPost[]>(`/api/v1/iftar?${params}`);
+  },
+  create: (body: { masjidId: string; iftarType?: string; description?: string; rating?: number }) =>
+    request<IftarPost>("/api/v1/iftar", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/iftar/${id}`, { method: "DELETE" }),
 };
