@@ -30,11 +30,20 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
       to={`/masjid/${masjid.slug ?? masjid.id}`}
       className="group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-1"
     >
-      {/* Placeholder image area */}
+      {/* Cover image */}
       <div className="relative h-48 overflow-hidden bg-muted">
-        <div className="flex h-full items-center justify-center bg-secondary">
-          <MapPin className="h-12 w-12 text-muted-foreground/30" />
-        </div>
+        {masjid.cover_photo ? (
+          <img
+            src={masjid.cover_photo}
+            alt={masjid.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-secondary">
+            <MapPin className="h-12 w-12 text-muted-foreground/30" />
+          </div>
+        )}
 
         {/* Place Type Badge */}
         <div className="absolute top-3 left-3">

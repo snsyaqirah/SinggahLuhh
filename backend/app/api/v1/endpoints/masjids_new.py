@@ -130,15 +130,34 @@ async def list_masjids(
         query = query.range(offset, offset + page_size - 1)
         
         result = query.execute()
-        
+        items: list[dict] = result.data or []
+
+        # Batch-fetch one cover photo per masjid (main_photo preferred, fallback interior_photo)
+        if items:
+            ids = [str(item['id']) for item in items]
+            photos_res = supabase.table('masjid_media').select(
+                'masjid_id, url, media_type'
+            ).in_('masjid_id', ids).in_(
+                'media_type', ['main_photo', 'interior_photo']
+            ).is_('deleted_at', 'null').execute()
+
+            cover_map: dict[str, str] = {}
+            for p in (photos_res.data or []):
+                mid = str(p['masjid_id'])
+                if mid not in cover_map or p['media_type'] == 'main_photo':
+                    cover_map[mid] = p['url']
+
+            for item in items:
+                item['cover_photo'] = cover_map.get(str(item['id']))
+
         return PaginatedResponse(
-            items=result.data or [],
+            items=items,
             total=result.count or 0,
             page=page,
             page_size=page_size,
             total_pages=((result.count or 0) + page_size - 1) // page_size
         )
-        
+
     except HTTPException:
         raise
     except Exception:

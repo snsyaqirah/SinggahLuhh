@@ -54,6 +54,7 @@ export interface Masjid {
   created_at: string;
   created_by: string | null;
   facilities: Facilities | null;
+  cover_photo?: string | null;
 }
 
 export interface LiveStatus {
