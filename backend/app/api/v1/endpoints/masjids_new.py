@@ -89,22 +89,31 @@ async def list_masjids(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     status_filter: str | None = Query(None, alias="status"),
+    type_filter: str | None = Query(None, alias="type"),
+    state: str | None = None,
     search: str | None = None,
     supabase: Client = Depends(get_supabase_admin)
 ):
     """
-    List all masjids with pagination and filtering.
-    Public users see only 'verified' masjids.
-    Authenticated users see all except 'rejected'.
+    List all tempat solat with pagination and filtering.
+    Supports filtering by type (masjid/surau/musolla) and state.
     """
     try:
         query = supabase.table('masjids').select('*, facilities:masjid_facilities(*)', count='exact')
-        
+
         # Filter by status
         if status_filter:
             query = query.eq('status', status_filter)
         else:
             query = query.in_('status', ['pending', 'verified'])
+
+        # Filter by type (masjid / surau / musolla)
+        if type_filter and type_filter in ('masjid', 'surau', 'musolla'):
+            query = query.eq('type', type_filter)
+
+        # Filter by state
+        if state:
+            query = query.eq('state', state)
         
         # Search by name/address
         if search:
@@ -302,7 +311,10 @@ async def create_masjid(
             "name": body.name.strip().title(),
             "address": body.address,
             "description": body.description,
-            "location": f"POINT({body.longitude} {body.latitude})",  # PostGIS format
+            "location": f"POINT({body.longitude} {body.latitude})",
+            "type": body.type,
+            "state": body.state,
+            "district": body.district,
             "status": "pending",
             "created_by": current_user['id']
         }

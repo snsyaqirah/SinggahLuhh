@@ -14,18 +14,22 @@ from app.schemas.verification import MasjidVerificationStatus
 
 # ── Enums ────────────────────────────────────────────────────────────
 MasjidStatus = Literal["pending", "verified", "flagged", "rejected"]
-MediaType = Literal["main_photo", "toilet_photo", "interior_photo", "qr_tng", "qr_duitnow", "masjid_board"]
+PlaceType   = Literal["masjid", "surau", "musolla"]
+MediaType   = Literal["main_photo", "toilet_photo", "interior_photo", "qr_tng", "qr_duitnow", "masjid_board"]
 
 
 # ── Request bodies (Create/Update) ──────────────────────────────────
 
 class MasjidCreate(CamelModel):
-    """Create new masjid with location validation."""
+    """Create new masjid / surau / musolla with location validation."""
     name: str = Field(min_length=3, max_length=200)
     address: str = Field(max_length=500)
     description: str | None = Field(None, max_length=2000)
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
+    type: PlaceType = "masjid"
+    state: str | None = Field(None, max_length=100)
+    district: str | None = Field(None, max_length=100)
 
 
 class MasjidUpdate(CamelModel):
@@ -35,6 +39,9 @@ class MasjidUpdate(CamelModel):
     description: str | None = None
     latitude: float | None = Field(None, ge=-90, le=90)
     longitude: float | None = Field(None, ge=-180, le=180)
+    type: PlaceType | None = None
+    state: str | None = None
+    district: str | None = None
 
 
 # ── Media (Photos & QR Codes) ───────────────────────────────────────
@@ -68,17 +75,20 @@ class MasjidListItem(CamelModel):
     latitude: float
     longitude: float
     status: MasjidStatus
+    type: PlaceType = "masjid"
+    state: str | None = None
+    district: str | None = None
     verification_count: int
     distance_meters: float | None = None  # Populated if nearby search
-    
+
     # Quick preview of key facilities
     cooling_system: str | None = None
     has_coway: bool = False
     kucing_count: str | None = None
-    
+
     # Media preview
     main_photo: str | None = None
-    
+
     created_at: datetime
 
 
@@ -91,6 +101,9 @@ class MasjidDetail(CamelModel):
     latitude: float
     longitude: float
     status: MasjidStatus
+    type: PlaceType = "masjid"
+    state: str | None = None
+    district: str | None = None
     verification_count: int
     
     # Complete facilities data

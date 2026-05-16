@@ -180,6 +180,8 @@ export const masjidsApi = {
     page?: number;
     page_size?: number;
     status?: string;
+    type?: "masjid" | "surau" | "musolla";
+    state?: string;
     search?: string;
   }) => {
     const qs = new URLSearchParams(
@@ -211,6 +213,9 @@ export const masjidsApi = {
     description?: string;
     latitude: number;
     longitude: number;
+    type?: "masjid" | "surau" | "musolla";
+    state?: string;
+    district?: string;
   }) =>
     request<Masjid>("/api/v1/masjids", {
       method: "POST",

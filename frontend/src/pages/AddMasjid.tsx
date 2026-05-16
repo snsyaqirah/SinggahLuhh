@@ -65,6 +65,14 @@ const AddMasjid = () => {
     setPlaceResults([]);
     setShowDropdown(false);
   };
+  const [placeType, setPlaceType] = useState<"masjid" | "surau" | "musolla">("masjid");
+
+  const PLACE_TYPE_CONFIG = {
+    masjid:  { label: "Masjid",  emoji: "🕌", desc: "Ada solat Jumaat" },
+    surau:   { label: "Surau",   emoji: "🏘️", desc: "Surau kawasan / taman" },
+    musolla: { label: "Musolla", emoji: "🏠", desc: "Ruang solat kecil" },
+  } as const;
+
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -151,7 +159,7 @@ const AddMasjid = () => {
       const nearby = await masjidsApi.checkNearby(lat, lng, 100) as Array<{ id: string; name: string }>;
       if (nearby.length > 0) {
         toast({
-          title: "Masjid mungkin sudah wujud",
+          title: `${PLACE_TYPE_CONFIG[placeType].label} mungkin sudah wujud`,
           description: `"${nearby[0].name}" ditemui dalam radius 100m. Sila semak dahulu.`,
           variant: "destructive",
         });
@@ -165,6 +173,7 @@ const AddMasjid = () => {
         description: form.description || undefined,
         latitude: lat,
         longitude: lng,
+        type: placeType,
       }) as { id: string };
 
       // Save facilities data if any checkboxes were selected
@@ -216,13 +225,13 @@ const AddMasjid = () => {
       }
 
       toast({
-        title: "Masjid berjaya ditambah! 🕌",
+        title: `${PLACE_TYPE_CONFIG[placeType].label} berjaya ditambah! ${PLACE_TYPE_CONFIG[placeType].emoji}`,
         description: `${form.name} kini boleh dilihat oleh komuniti. 3 pengesahan diperlukan.`,
       });
       navigate(`/masjid/${(result as { id: string; slug?: string }).slug ?? (result as { id: string }).id}`);
     } catch (err) {
       toast({
-        title: "Gagal tambah masjid",
+        title: `Gagal tambah ${PLACE_TYPE_CONFIG[placeType].label.toLowerCase()}`,
         description: err instanceof ApiError ? err.message : "Sila cuba lagi.",
         variant: "destructive",
       });
@@ -243,11 +252,34 @@ const AddMasjid = () => {
 
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-foreground">
-            Tambah Masjid Baru
+            Tambah Tempat Solat
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Kongsi info masjid ni dengan komuniti. Masjid akan muncul terus dengan tag "Belum disahkan".
+            Kongsi info tempat solat ni dengan komuniti. Ia akan muncul terus dengan tag "Belum disahkan".
           </p>
+        </div>
+
+        {/* Place Type Selector */}
+        <div className="mb-6">
+          <p className="text-sm font-medium text-muted-foreground mb-3">Jenis tempat solat</p>
+          <div className="grid grid-cols-3 gap-3">
+            {(["masjid", "surau", "musolla"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setPlaceType(t)}
+                className={`rounded-2xl border p-4 text-center transition-all ${
+                  placeType === t
+                    ? "border-primary bg-primary/10 ring-2 ring-primary"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <div className="text-2xl mb-1">{PLACE_TYPE_CONFIG[t].emoji}</div>
+                <div className="text-sm font-semibold">{PLACE_TYPE_CONFIG[t].label}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{PLACE_TYPE_CONFIG[t].desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -255,8 +287,8 @@ const AddMasjid = () => {
           <div className="rounded-2xl border bg-card p-6 space-y-5">
             <h3 className="font-serif text-base font-semibold">Maklumat Asas</h3>
             <div className="space-y-2">
-              <Label htmlFor="name" className="font-medium">Nama Masjid *</Label>
-              <Input id="name" placeholder="cth: Masjid Al-Ikhlas" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl bg-background" required />
+              <Label htmlFor="name" className="font-medium">Nama {PLACE_TYPE_CONFIG[placeType].label} *</Label>
+              <Input id="name" placeholder={`cth: ${PLACE_TYPE_CONFIG[placeType].label} Al-Ikhlas`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl bg-background" required />
             </div>
 
             <div className="space-y-2">

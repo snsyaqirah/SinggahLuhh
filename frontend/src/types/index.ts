@@ -1,6 +1,7 @@
 // ── Masjid ─────────────────────────────────────────────────────────
 
 export type MasjidStatus = "pending" | "verified" | "flagged" | "rejected";
+export type PlaceType = "masjid" | "surau" | "musolla";
 
 export type VisitType =
   | "subuh" | "zohor" | "asar" | "maghrib" | "isyak"
@@ -44,6 +45,9 @@ export interface Masjid {
   address: string | null;
   description: string | null;
   status: MasjidStatus;
+  type: PlaceType;
+  state: string | null;
+  district: string | null;
   verification_count: number;
   created_at: string;
   created_by: string | null;

@@ -6,9 +6,16 @@ import { toTitleCase } from "@/lib/utils";
 
 export type { Masjid as MasjidData };
 
+const PLACE_TYPE_BADGE: Record<string, { label: string; emoji: string }> = {
+  masjid:  { label: "Masjid",  emoji: "🕌" },
+  surau:   { label: "Surau",   emoji: "🏘️" },
+  musolla: { label: "Musolla", emoji: "🏠" },
+};
+
 const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
   const f = masjid.facilities;
   const isVerified = masjid.status === "verified";
+  const typeBadge = PLACE_TYPE_BADGE[masjid.type ?? "masjid"];
 
   const featureBadges: { label: string; icon: React.ReactNode }[] = [];
   if (f?.has_iftar) featureBadges.push({ label: "Iftar", icon: <Utensils className="h-3 w-3" /> });
@@ -27,6 +34,13 @@ const MasjidCard = ({ masjid }: { masjid: Masjid }) => {
       <div className="relative h-48 overflow-hidden bg-muted">
         <div className="flex h-full items-center justify-center bg-secondary">
           <MapPin className="h-12 w-12 text-muted-foreground/30" />
+        </div>
+
+        {/* Place Type Badge */}
+        <div className="absolute top-3 left-3">
+          <Badge variant="secondary" className="font-sans text-xs gap-1 bg-background/80 backdrop-blur-sm">
+            <span>{typeBadge.emoji}</span> {typeBadge.label}
+          </Badge>
         </div>
 
         {/* Verification Badge */}

@@ -11,14 +11,26 @@ import { QUICK_TAGS, TAG_FILTER_FN, type QuickTagKey } from "@/lib/constants";
 import type { Masjid } from "@/types";
 import { Link } from "react-router-dom";
 
+const TYPE_CHIPS = [
+  { key: "all" as const,     label: "Semua",   emoji: "🗺️" },
+  { key: "masjid" as const,  label: "Masjid",  emoji: "🕌" },
+  { key: "surau" as const,   label: "Surau",   emoji: "🏘️" },
+  { key: "musolla" as const, label: "Musolla", emoji: "🏠" },
+] as const;
+
 const BrowseMasjid = () => {
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | "masjid" | "surau" | "musolla">("all");
   const [selectedTags, setSelectedTags] = useState<QuickTagKey[]>([]);
   const [sortBy, setSortBy] = useState<"verification" | "name">("verification");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["masjids", "list", search],
-    queryFn: () => masjidsApi.list({ search: search || undefined, page_size: 50 }),
+    queryKey: ["masjids", "list", search, typeFilter],
+    queryFn: () => masjidsApi.list({
+      search: search || undefined,
+      page_size: 50,
+      type: typeFilter === "all" ? undefined : typeFilter,
+    }),
   });
 
   const allMasjids: Masjid[] = (data?.items ?? []) as Masjid[];
@@ -49,10 +61,10 @@ const BrowseMasjid = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
-            Cari Masjid
+            Cari Tempat Solat
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Temui masjid berdekatan — filter ikut kemudahan yang anda perlukan
+            Temui masjid, surau & musolla berdekatan — filter ikut kemudahan yang anda perlukan
           </p>
         </div>
 
@@ -61,12 +73,29 @@ const BrowseMasjid = () => {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Cari nama masjid, lokasi, atau negeri..."
+              placeholder="Cari nama masjid / surau / musolla, lokasi, atau negeri..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="rounded-xl pl-11 py-6 text-base bg-card"
             />
           </div>
+        </div>
+
+        {/* Type filter chips */}
+        <div className="mb-4 flex gap-2">
+          {TYPE_CHIPS.map((chip) => (
+            <button
+              key={chip.key}
+              onClick={() => setTypeFilter(chip.key)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                typeFilter === chip.key
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+              }`}
+            >
+              <span>{chip.emoji}</span> {chip.label}
+            </button>
+          ))}
         </div>
 
         {/* Filter + Sort bar */}
@@ -115,7 +144,7 @@ const BrowseMasjid = () => {
 
         {/* Results */}
         {isLoading ? (
-          <div className="py-20 text-center text-muted-foreground">Memuatkan masjid...</div>
+          <div className="py-20 text-center text-muted-foreground">Memuatkan tempat solat...</div>
         ) : filtered.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((masjid) => (
@@ -126,13 +155,13 @@ const BrowseMasjid = () => {
           <div className="py-20 text-center">
             <MapPin className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
             <h3 className="font-serif text-xl font-semibold text-foreground">
-              Tiada masjid dijumpai
+              Tiada tempat solat dijumpai
             </h3>
             <p className="mt-2 text-muted-foreground">
-              Cuba carian lain atau tambah masjid baru!
+              Cuba carian lain atau tambah tempat solat baru!
             </p>
             <Button asChild className="mt-4 rounded-xl">
-              <Link to="/add">Tambah Masjid</Link>
+              <Link to="/add">Tambah Tempat Solat</Link>
             </Button>
           </div>
         )}
