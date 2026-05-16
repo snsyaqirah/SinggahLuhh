@@ -4,6 +4,7 @@ import {
   MapPin, CheckCircle, ArrowLeft, Users, Wind, Cat,
   Utensils, ThumbsUp, ThumbsDown, Loader2, Moon, Camera,
   Flag, X, Plus, Trash2, Car, Droplets, BookOpen, AlertTriangle,
+  Bookmark, Heart, Calendar, Megaphone, ExternalLink,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -25,9 +26,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   masjidsApi, verificationsApi, checkinsApi, liveUpdatesApi,
-  facilitiesApi, mediaApi, profileApi, ApiError,
+  facilitiesApi, mediaApi, profileApi, bookmarksApi, diaryApi,
+  eventsApi, announcementsApi, ApiError,
 } from "@/lib/api";
-import type { MediaType } from "@/lib/api";
+import type { MediaType, DiaryEntry, EventItem, AnnouncementItem } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { Masjid, Facilities, LiveStatus, VerificationStatus } from "@/types";
@@ -120,6 +122,8 @@ const MasjidDetail = () => {
   const [facForm, setFacForm] = useState(defaultFacForm);
   // Delete confirmation
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // Diary
+  const [diaryText, setDiaryText] = useState("");
 
   // ── queries ───────────────────────────────────────────────────
   const { data: masjid, isLoading, isError } = useQuery({
@@ -156,6 +160,30 @@ const MasjidDetail = () => {
     queryKey: ["profile", "me"],
     queryFn: () => profileApi.get(),
     enabled: !!user,
+  });
+
+  const { data: bookStatus, refetch: refetchBookStatus } = useQuery({
+    queryKey: ["bookmark-status", masjid?.id],
+    queryFn: () => bookmarksApi.status(masjid!.id),
+    enabled: !!masjid?.id && !!user,
+  });
+
+  const { data: events } = useQuery({
+    queryKey: ["events", masjid?.id],
+    queryFn: () => eventsApi.list(masjid!.id),
+    enabled: !!masjid?.id,
+  });
+
+  const { data: announcements } = useQuery({
+    queryKey: ["announcements", masjid?.id],
+    queryFn: () => announcementsApi.list(masjid!.id),
+    enabled: !!masjid?.id,
+  });
+
+  const { data: diaryEntries, refetch: refetchDiary } = useQuery({
+    queryKey: ["diary", masjid?.id],
+    queryFn: () => diaryApi.list(masjid!.id),
+    enabled: !!masjid?.id && !!user,
   });
 
   // ── mutations ─────────────────────────────────────────────────
@@ -330,6 +358,29 @@ const MasjidDetail = () => {
     },
     onError: (e) => {
       toast({ title: "Gagal padam", description: e instanceof ApiError ? e.message : "Cuba lagi.", variant: "destructive" });
+    },
+  });
+
+  const bookmarkMutation = useMutation({
+    mutationFn: (isWishlist: boolean) => {
+      const status = bookStatus as { bookmarked: boolean; isWishlist: boolean } | undefined;
+      if (status?.bookmarked && status.isWishlist === isWishlist) {
+        return bookmarksApi.remove(masjid!.id) as Promise<unknown>;
+      }
+      return bookmarksApi.add(masjid!.id, isWishlist);
+    },
+    onSuccess: () => {
+      refetchBookStatus();
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+    },
+  });
+
+  const addDiaryMutation = useMutation({
+    mutationFn: () => diaryApi.create({ masjidId: masjid!.id, content: diaryText.trim() }),
+    onSuccess: () => {
+      setDiaryText("");
+      refetchDiary();
+      toast({ title: "Nota disimpan" });
     },
   });
 
@@ -755,6 +806,96 @@ const MasjidDetail = () => {
                 </p>
               )}
             </div>
+
+            {/* Announcements */}
+            {announcements && (announcements as AnnouncementItem[]).length > 0 && (
+              <div className="rounded-2xl border bg-card p-6">
+                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Megaphone className="h-5 w-5 text-primary" /> Pengumuman
+                </h3>
+                <div className="space-y-3">
+                  {(announcements as AnnouncementItem[]).map((ann) => (
+                    <div
+                      key={ann.id}
+                      className={`rounded-xl p-3 ${ann.isPinned ? "bg-primary/5 border border-primary/20" : "bg-secondary/50"}`}
+                    >
+                      {ann.isPinned && (
+                        <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">📌 Disematkan</span>
+                      )}
+                      <p className="text-sm font-semibold mt-0.5">{ann.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{ann.body}</p>
+                      <p className="text-[10px] text-muted-foreground mt-2">
+                        {new Date(ann.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Events */}
+            {events && (events as EventItem[]).length > 0 && (
+              <div className="rounded-2xl border bg-card p-6">
+                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" /> Aktiviti & Program
+                </h3>
+                <div className="space-y-3">
+                  {(events as EventItem[]).map((ev) => (
+                    <div key={ev.id} className="flex items-start gap-3 rounded-xl bg-secondary/50 p-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                        <span className="text-base">
+                          {ev.eventType === "iftar" ? "🍽️" : ev.eventType === "khatam" ? "📖" : "📅"}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold">{ev.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(ev.startsAt).toLocaleDateString("ms-MY", {
+                            weekday: "short", day: "numeric", month: "short", year: "numeric",
+                          })}
+                        </p>
+                        {ev.description && (
+                          <p className="text-xs text-muted-foreground mt-1 truncate">{ev.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Diary */}
+            {user && (
+              <div className="rounded-2xl border bg-card p-6">
+                <h3 className="font-serif text-lg font-semibold mb-4">Nota Peribadi</h3>
+                {diaryEntries && (diaryEntries as DiaryEntry[]).length > 0 && (
+                  <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                    {(diaryEntries as DiaryEntry[]).map((d) => (
+                      <div key={d.id} className="rounded-xl bg-secondary/50 p-3">
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{d.content}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {new Date(d.createdAt).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Textarea
+                  value={diaryText}
+                  onChange={(e) => setDiaryText(e.target.value)}
+                  placeholder="Tulis nota peribadi tentang tempat solat ini..."
+                  className="rounded-xl min-h-[80px] text-sm"
+                />
+                <Button
+                  className="mt-2 w-full rounded-xl"
+                  size="sm"
+                  disabled={diaryText.trim().length < 3 || addDiaryMutation.isPending}
+                  onClick={() => addDiaryMutation.mutate()}
+                >
+                  {addDiaryMutation.isPending ? "Menyimpan..." : "Simpan Nota"}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* ── Sidebar ── */}
@@ -773,6 +914,33 @@ const MasjidDetail = () => {
                 </div>
               </div>
             </div>
+
+            {/* Bookmark */}
+            {user && (
+              <div className="rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Simpan Tempat Ini</p>
+                <div className="space-y-2">
+                  <Button
+                    variant={(bookStatus as any)?.bookmarked && !(bookStatus as any)?.isWishlist ? "default" : "outline"}
+                    className="w-full gap-2 rounded-xl text-sm"
+                    onClick={() => bookmarkMutation.mutate(false)}
+                    disabled={bookmarkMutation.isPending}
+                  >
+                    <Bookmark className="h-4 w-4" />
+                    {(bookStatus as any)?.bookmarked && !(bookStatus as any)?.isWishlist ? "Disimpan ✓" : "Simpan"}
+                  </Button>
+                  <Button
+                    variant={(bookStatus as any)?.bookmarked && (bookStatus as any)?.isWishlist ? "default" : "outline"}
+                    className="w-full gap-2 rounded-xl text-sm"
+                    onClick={() => bookmarkMutation.mutate(true)}
+                    disabled={bookmarkMutation.isPending}
+                  >
+                    <Heart className="h-4 w-4" />
+                    {(bookStatus as any)?.bookmarked && (bookStatus as any)?.isWishlist ? "Dalam Senarai ♥" : "Nak Pergi"}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Check-in */}
             <div className="rounded-2xl border bg-card p-4 space-y-2">

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, LogOut, User, PlusCircle, ShieldCheck } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, PlusCircle, ShieldCheck, Bookmark, Star } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,18 @@ const Header = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link to="/bookmarks" className="flex items-center gap-2 cursor-pointer">
+                    <Bookmark className="h-4 w-4" />
+                    Senarai Saya
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/ibadah" className="flex items-center gap-2 cursor-pointer">
+                    <Star className="h-4 w-4" />
+                    Ibadah Saya
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/add" className="flex items-center gap-2 cursor-pointer">
                     <PlusCircle className="h-4 w-4" />
                     Tambah Tempat Solat
@@ -155,6 +167,22 @@ const Header = () => {
 
           {user ? (
             <>
+              <Link
+                to="/bookmarks"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+              >
+                <Bookmark className="h-4 w-4" />
+                Senarai Saya
+              </Link>
+              <Link
+                to="/ibadah"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+              >
+                <Star className="h-4 w-4" />
+                Ibadah Saya
+              </Link>
               <Link
                 to="/add"
                 onClick={() => setMobileOpen(false)}

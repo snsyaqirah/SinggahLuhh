@@ -16,6 +16,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
 import MapView from "./pages/MapView";
+import Bookmarks from "./pages/Bookmarks";
+import IbadahSaya from "./pages/IbadahSaya";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
@@ -42,6 +44,8 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/map" element={<MapView />} />
+            <Route path="/bookmarks" element={<Bookmarks />} />
+            <Route path="/ibadah" element={<IbadahSaya />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
