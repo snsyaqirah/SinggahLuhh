@@ -24,7 +24,9 @@
 - [Environment Variables](#-environment-variables)
 - [Deployment](#-deployment)
 - [Project Structure](#-project-structure)
+- [Screenshots](#-screenshots)
 - [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
 - [License](#-license)
 
 ---
@@ -916,7 +918,7 @@ flowchart TD
     B -->|Other Prayer Check-in| D["➕ 10 Points"]
     B -->|Add Facility Info| E["➕ 10 Points"]
     B -->|Post Live Update| F["➕ 5 Points"]
-    B -->|Vote (upvote/downvote)| G["➕ 5 Points"]
+    B -->|Vote upvote/downvote| G["➕ 5 Points"]
     B -->|Upload Photo| H["➕ 5 Points"]
     
     C --> I["Update reputation_points"]
@@ -1267,6 +1269,18 @@ SinggahLuhh/
 
 ---
 
+## 📸 Screenshots
+
+| Page | Preview |
+|---|---|
+| Home | ![home](./screenshots/home.png) |
+| Browse | ![browse](./screenshots/browse.png) |
+| Masjid Detail | ![detail](./screenshots/masjid-detail.png) |
+| Dashboard | ![dashboard](./screenshots/dashboard.png) |
+| Prayer Groups | ![groups](./screenshots/prayer-groups.png) |
+
+---
+
 ## 🗺 Roadmap
 
 - [x] Core MVP (masjid browse, check-in, reputation)
@@ -1280,6 +1294,18 @@ SinggahLuhh/
 - [ ] AI-powered facility recommendations
 - [ ] Multi-language support (English, Chinese, Tamil)
 - [ ] Integration with mosque management systems
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+
+```bash
+git checkout -b feature/your-feature
+git commit -m "feat: add your feature"
+git push origin feature/your-feature
+```
 
 ---
 
