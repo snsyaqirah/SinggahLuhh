@@ -458,6 +458,159 @@ export const adminApi = {
     request<{ success: boolean }>(`/api/v1/masjids/admin/media/${mediaId}/reject`, { method: "DELETE" }),
 };
 
+// ── Bookmarks ─────────────────────────────────────────────────────
+
+export interface BookmarkItem {
+  id: string;
+  masjidId: string;
+  isWishlist: boolean;
+  createdAt: string;
+  masjidName: string | null;
+  masjidAddress: string | null;
+  masjidType: string | null;
+  masjidStatus: string | null;
+}
+
+export const bookmarksApi = {
+  list: (isWishlist?: boolean) => {
+    const qs = isWishlist != null ? `?is_wishlist=${isWishlist}` : "";
+    return request<BookmarkItem[]>(`/api/v1/bookmarks${qs}`);
+  },
+  status: (masjidId: string) =>
+    request<{ bookmarked: boolean; isWishlist: boolean }>(`/api/v1/bookmarks/status/${masjidId}`),
+  add: (masjidId: string, isWishlist = false) =>
+    request<{ message: string }>("/api/v1/bookmarks", {
+      method: "POST",
+      body: JSON.stringify({ masjidId, isWishlist }),
+    }),
+  remove: (masjidId: string) =>
+    request(`/api/v1/bookmarks/${masjidId}`, { method: "DELETE" }),
+};
+
+// ── Diary ─────────────────────────────────────────────────────────
+
+export interface DiaryEntry {
+  id: string;
+  masjidId: string;
+  content: string;
+  mood: string | null;
+  visitType: string | null;
+  createdAt: string;
+  updatedAt: string;
+  masjidName: string | null;
+}
+
+export const diaryApi = {
+  list: (masjidId?: string) => {
+    const qs = masjidId ? `?masjid_id=${masjidId}` : "";
+    return request<DiaryEntry[]>(`/api/v1/diary${qs}`);
+  },
+  create: (body: { masjidId: string; content: string; mood?: string; visitType?: string }) =>
+    request<DiaryEntry>("/api/v1/diary", { method: "POST", body: JSON.stringify(body) }),
+  update: (id: string, body: { content?: string; mood?: string }) =>
+    request<DiaryEntry>(`/api/v1/diary/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/diary/${id}`, { method: "DELETE" }),
+};
+
+// ── Khatam Tracker ────────────────────────────────────────────────
+
+export interface KhatamEntry {
+  id: string;
+  surahFrom: number;
+  ayahFrom: number;
+  surahTo: number;
+  ayahTo: number;
+  juz: number | null;
+  notes: string | null;
+  masjidId: string | null;
+  createdAt: string;
+}
+
+export const khatamApi = {
+  list: () => request<KhatamEntry[]>("/api/v1/khatam"),
+  log: (body: { surahFrom: number; ayahFrom: number; surahTo: number; ayahTo: number; juz?: number; notes?: string; masjidId?: string }) =>
+    request<KhatamEntry>("/api/v1/khatam", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/khatam/${id}`, { method: "DELETE" }),
+};
+
+// ── Special Prayers ───────────────────────────────────────────────
+
+export interface SpecialPrayerEntry {
+  id: string;
+  prayerType: string;
+  rakaat: number | null;
+  notes: string | null;
+  masjidId: string | null;
+  isRamadan: boolean;
+  createdAt: string;
+  masjidName: string | null;
+}
+
+export const specialPrayersApi = {
+  list: () => request<SpecialPrayerEntry[]>("/api/v1/special-prayers"),
+  log: (body: { prayerType: string; rakaat?: number; notes?: string; masjidId?: string; isRamadan?: boolean }) =>
+    request<SpecialPrayerEntry>("/api/v1/special-prayers", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/special-prayers/${id}`, { method: "DELETE" }),
+};
+
+// ── Events ────────────────────────────────────────────────────────
+
+export interface EventItem {
+  id: string;
+  masjidId: string;
+  title: string;
+  description: string | null;
+  eventType: string;
+  startsAt: string;
+  endsAt: string | null;
+  isRecurring: boolean;
+  createdAt: string;
+  masjidName: string | null;
+  createdBy: string | null;
+}
+
+export const eventsApi = {
+  list: (masjidId?: string, upcomingOnly = true) => {
+    const params = new URLSearchParams();
+    if (masjidId) params.set("masjid_id", masjidId);
+    params.set("upcoming_only", String(upcomingOnly));
+    return request<EventItem[]>(`/api/v1/events?${params}`);
+  },
+  create: (body: { masjidId: string; title: string; description?: string; eventType?: string; startsAt: string; endsAt?: string; isRecurring?: boolean }) =>
+    request<EventItem>("/api/v1/events", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/events/${id}`, { method: "DELETE" }),
+};
+
+// ── Announcements ─────────────────────────────────────────────────
+
+export interface AnnouncementItem {
+  id: string;
+  masjidId: string;
+  title: string;
+  body: string;
+  category: string;
+  isPinned: boolean;
+  createdAt: string;
+  expiresAt: string | null;
+  masjidName: string | null;
+  createdBy: string | null;
+}
+
+export const announcementsApi = {
+  list: (masjidId?: string) => {
+    const qs = masjidId ? `?masjid_id=${masjidId}` : "";
+    return request<AnnouncementItem[]>(`/api/v1/announcements${qs}`);
+  },
+  create: (body: { masjidId: string; title: string; body: string; category?: string; isPinned?: boolean }) =>
+    request<AnnouncementItem>("/api/v1/announcements", { method: "POST", body: JSON.stringify(body) }),
+  remove: (id: string) =>
+    request(`/api/v1/announcements/${id}`, { method: "DELETE" }),
+};
+
 // ── Feedback ──────────────────────────────────────────────────────
 
 export const feedbackApi = {
