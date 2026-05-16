@@ -27,7 +27,7 @@ export const TAG_FILTER_FN: Record<
   coway:          (f) => f.has_coway === true,
   kids:           (f) => f.has_kids_area === true,
   family:         (f) => f.is_family_friendly === true,
-  oku:            (f) => f.has_parking_oku === true,
+  oku:            (f) => f.has_parking_oku === true || f.has_oku_ramp === true || f.has_lift === true || f.has_wheelchair_wudhu === true,
   telekung:       (f) => f.has_clean_telekung === true,
   tourist:        (f) => f.is_tourist_friendly === true,
   library:        (f) => f.has_library === true,

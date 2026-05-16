@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Moon, Calendar, MapPin, TrendingUp, Trophy, Loader2, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Moon, Calendar, MapPin, TrendingUp, Trophy, Loader2, PlusCircle, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { VISIT_TYPE_LABELS, MALAYSIA_STATES } from "@/lib/constants";
 import { Link, Navigate } from "react-router-dom";
 import type { UserStats, VisitHistory, Visit, PrayerType } from "@/types";
+import { getReputationTier, getTierProgress, TIER_CONFIG } from "@/lib/utils";
 
 const PRAYER_LABELS: Record<PrayerType, string> = {
   subuh: "Subuh", zohor: "Zohor", asar: "Asar",
@@ -35,6 +36,12 @@ const TrackingDashboard = () => {
   const { data: history, isLoading: loadingHistory } = useQuery({
     queryKey: ["checkins", "history"],
     queryFn: () => checkinsApi.history(),
+    enabled: !!user,
+  });
+
+  const { data: leaderboard } = useQuery({
+    queryKey: ["dashboard", "leaderboard"],
+    queryFn: () => dashboardApi.leaderboard(10),
     enabled: !!user,
   });
 
@@ -132,7 +139,6 @@ const TrackingDashboard = () => {
                 { label: "Masjid Dikunjungi",  value: h?.uniqueMasjids ?? 0,      icon: MapPin,     color: "text-accent" },
                 { label: "Streak Sekarang",    value: h?.currentStreak ?? 0,      icon: Calendar,   color: "text-primary" },
                 { label: "Streak Terpanjang",  value: longestStreak,              icon: Trophy,     color: "text-accent" },
-                { label: "Mata Reputasi",      value: s?.reputationPoints ?? 0,   icon: Trophy,     color: "text-primary" },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border bg-card p-5">
                   <stat.icon className={`h-5 w-5 ${stat.color} mb-2`} />
@@ -140,6 +146,28 @@ const TrackingDashboard = () => {
                   <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
                 </div>
               ))}
+              {/* Reputation + Tier card */}
+              {(() => {
+                const pts = s?.reputationPoints ?? 0;
+                const tier = getReputationTier(pts);
+                const cfg = TIER_CONFIG[tier];
+                const progress = getTierProgress(pts);
+                return (
+                  <div className="rounded-2xl border bg-card p-5 col-span-2 md:col-span-1">
+                    <Trophy className="h-5 w-5 text-primary mb-2" />
+                    <p className="font-serif text-2xl font-bold text-foreground">{pts}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Mata Reputasi</p>
+                    <span className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${cfg.color} ${cfg.bg} ${cfg.border}`}>
+                      {cfg.emoji} {cfg.label}
+                    </span>
+                    <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
+                      <div className={`h-full rounded-full ${tier === "tok_imam" ? "bg-amber-500" : tier === "penjaga_masjid" ? "bg-purple-500" : tier === "ahli_tetap" ? "bg-blue-500" : "bg-green-500"}`}
+                        style={{ width: `${Math.round(progress * 100)}%` }} />
+                    </div>
+                    {cfg.next && <p className="text-[10px] text-muted-foreground mt-1">{cfg.next - pts} mata ke {TIER_CONFIG[tier === "jemaah_baru" ? "ahli_tetap" : tier === "ahli_tetap" ? "penjaga_masjid" : "tok_imam"].label}</p>}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Badges / Passport */}
@@ -274,6 +302,48 @@ const TrackingDashboard = () => {
                 <div>
                   <p className="text-xs text-muted-foreground">Masjid Kegemaran</p>
                   <p className="font-semibold text-foreground">{h.favoriteMasjid}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Leaderboard */}
+            {leaderboard && leaderboard.entries.length > 0 && (
+              <div className="rounded-2xl border bg-card p-6 mb-8">
+                <div className="flex items-center gap-2 mb-1">
+                  <Users className="h-5 w-5 text-accent" />
+                  <h3 className="font-serif text-lg font-semibold">Papan Pemimpin</h3>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  {leaderboard.totalUsers} ahli
+                  {leaderboard.userRank && ` · Kedudukan anda: #${leaderboard.userRank}`}
+                </p>
+                <div className="space-y-2">
+                  {leaderboard.entries.map((entry) => {
+                    const tier = getReputationTier(entry.reputationPoints);
+                    const cfg = TIER_CONFIG[tier];
+                    const isMe = leaderboard.userRank === entry.rank;
+                    return (
+                      <div key={entry.userId} className={`flex items-center gap-3 rounded-xl p-3 ${isMe ? "bg-primary/10 border border-primary/30" : "bg-background border"}`}>
+                        <div className="w-7 text-center">
+                          {entry.rank <= 3 ? (
+                            <span className="text-lg">{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</span>
+                          ) : (
+                            <span className="text-xs font-bold text-muted-foreground">#{entry.rank}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {entry.fullName}{isMe && <span className="ml-1.5 text-xs text-primary font-normal">(anda)</span>}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{entry.totalVisits} kunjungan · streak {entry.streakCount}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-bold text-foreground">{entry.reputationPoints} mata</p>
+                          <span className={`text-[10px] font-medium ${cfg.color}`}>{cfg.emoji} {cfg.label}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

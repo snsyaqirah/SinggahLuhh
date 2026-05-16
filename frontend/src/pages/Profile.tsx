@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { User, Edit2, Save, X, Trophy, Calendar, MapPin, TrendingUp, Loader2, Flag, CheckCircle2, XCircle, Clock, Search, Trash2, AlertTriangle } from "lucide-react";
+import { User, Edit2, Save, X, Trophy, Calendar, MapPin, TrendingUp, Loader2, Flag, CheckCircle2, XCircle, Clock, Search, Trash2, AlertTriangle, Bell, BellOff } from "lucide-react";
+import { getReputationTier, getTierProgress, TIER_CONFIG } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,9 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone_number: "", gender: "" });
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+    typeof Notification !== "undefined" ? Notification.permission : "default"
+  );
 
   if (!user) return <Navigate to="/auth" replace />;
 
@@ -160,6 +164,16 @@ const Profile = () => {
                       {profile?.full_name ?? user.fullName}
                     </h2>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
+                    {(() => {
+                      const pts = profile?.reputation_points ?? 0;
+                      const tier = getReputationTier(pts);
+                      const cfg = TIER_CONFIG[tier];
+                      return (
+                        <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cfg.color} ${cfg.bg} ${cfg.border}`}>
+                          {cfg.emoji} {cfg.label}
+                        </span>
+                      );
+                    })()}
                     <p className="text-xs text-muted-foreground mt-1">
                       Ahli sejak {formatDate(profile?.created_at)}
                     </p>
@@ -279,6 +293,59 @@ const Profile = () => {
               ))}
             </div>
 
+            {/* Reputation Tier Progress */}
+            {(() => {
+              const pts = profile?.reputation_points ?? 0;
+              const tier = getReputationTier(pts);
+              const cfg = TIER_CONFIG[tier];
+              const progress = getTierProgress(pts);
+              const tiers = ["jemaah_baru", "ahli_tetap", "penjaga_masjid", "tok_imam"] as const;
+              return (
+                <div className="rounded-2xl border bg-card p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Peringkat Semasa</p>
+                      <p className={`font-semibold text-sm mt-0.5 ${cfg.color}`}>
+                        {cfg.emoji} {cfg.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{cfg.desc}</p>
+                    </div>
+                    {cfg.next && (
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Seterusnya</p>
+                        <p className="text-xs font-medium">{cfg.next} mata</p>
+                        <p className="text-xs text-muted-foreground">{cfg.next - pts} lagi</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        tier === "tok_imam" ? "bg-amber-500" :
+                        tier === "penjaga_masjid" ? "bg-purple-500" :
+                        tier === "ahli_tetap" ? "bg-blue-500" : "bg-green-500"
+                      }`}
+                      style={{ width: `${Math.round(progress * 100)}%` }}
+                    />
+                  </div>
+                  <div className="mt-3 flex justify-between">
+                    {tiers.map((t) => {
+                      const tc = TIER_CONFIG[t];
+                      const active = t === tier;
+                      return (
+                        <div key={t} className="flex flex-col items-center gap-0.5">
+                          <span className={`text-base ${active ? "" : "opacity-30"}`}>{tc.emoji}</span>
+                          <span className={`text-[9px] font-medium ${active ? tc.color : "text-muted-foreground/40"}`}>
+                            {tc.min === 0 ? "0" : `${tc.min}`}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Phone number display */}
             {profile?.phone_number && !editing && (
               <div className="rounded-2xl border bg-card p-5">
@@ -342,6 +409,51 @@ const Profile = () => {
                 </div>
               )}
             </div>
+            {/* Notifications */}
+            {"Notification" in window && (
+              <div className="rounded-2xl border bg-card p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  {notifPermission === "granted" ? (
+                    <Bell className="h-4 w-4 text-primary" />
+                  ) : (
+                    <BellOff className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <h3 className="font-semibold text-sm">Pemberitahuan</h3>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {notifPermission === "granted"
+                    ? "Pemberitahuan dibenarkan — anda akan dapat notifikasi check-in."
+                    : notifPermission === "denied"
+                    ? "Pemberitahuan ditolak — sila benarkan dalam tetapan pelayar anda."
+                    : "Benarkan pemberitahuan untuk terima makluman check-in dan pencapaian."}
+                </p>
+                {notifPermission !== "denied" && notifPermission !== "granted" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl gap-2"
+                    onClick={async () => {
+                      const perm = await Notification.requestPermission();
+                      setNotifPermission(perm);
+                      if (perm === "granted") {
+                        new Notification("SinggahLuhh", {
+                          body: "Pemberitahuan dibenarkan! 🕌",
+                          icon: "/pwa-icon.svg",
+                        });
+                      }
+                    }}
+                  >
+                    <Bell className="h-4 w-4" /> Benarkan Pemberitahuan
+                  </Button>
+                )}
+                {notifPermission === "granted" && (
+                  <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Aktif
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Danger Zone */}
             <div className="rounded-2xl border border-destructive/30 bg-card p-5">
               <h3 className="font-semibold text-sm text-destructive mb-1 flex items-center gap-2">

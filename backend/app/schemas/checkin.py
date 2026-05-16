@@ -20,6 +20,7 @@ class CheckInRequest(CamelModel):
     visit_type: VisitType
     latitude: float = Field(ge=-90, le=90, description="User's current latitude")
     longitude: float = Field(ge=-180, le=180, description="User's current longitude")
+    is_musafir: bool = False  # Traveller mode — expands radius to 500m
 
 
 # ── Response ────────────────────────────────────────────────────────

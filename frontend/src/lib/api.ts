@@ -259,6 +259,7 @@ export const checkinsApi = {
     visitType: string;
     latitude: number;
     longitude: number;
+    isMusafir?: boolean;
   }) =>
     request<CheckInResult>("/api/v1/checkins/", {
       method: "POST",

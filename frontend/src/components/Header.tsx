@@ -30,7 +30,8 @@ const Header = () => {
   // Main nav links — same for everyone
   const publicLinks = [
     { to: "/", label: "Utama" },
-    { to: "/browse", label: "Cari Masjid" },
+    { to: "/browse", label: "Cari" },
+    { to: "/map", label: "Peta" },
   ];
 
   const authLinks = [

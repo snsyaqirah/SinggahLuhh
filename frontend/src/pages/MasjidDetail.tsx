@@ -99,6 +99,7 @@ const MasjidDetail = () => {
   const queryClient = useQueryClient();
 
   const [checkingIn, setCheckingIn] = useState(false);
+  const [isMusafir, setIsMusafir] = useState(false);
   // Report dialog
   const [reportOpen, setReportOpen] = useState(false);
   const [reportType, setReportType] = useState("");
@@ -346,11 +347,18 @@ const MasjidDetail = () => {
             masjidId: masjid!.id, visitType,
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
+            isMusafir,
           }) as { streakCount?: number; pointsEarned?: number };
           toast({
             title: `Check-in berjaya! 🎉`,
             description: `+${result.pointsEarned ?? 0} mata. Streak: ${result.streakCount ?? 0} hari.`,
           });
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            new Notification("SinggahLuhh — Check-in berjaya! 🕌", {
+              body: `${m.name} · +${result.pointsEarned ?? 0} mata · Streak ${result.streakCount ?? 0} hari`,
+              icon: "/pwa-icon.svg",
+            });
+          }
           queryClient.invalidateQueries({ queryKey: ["checkins"] });
         } catch (e) {
           const msg = e instanceof ApiError ? e.message : "Gagal check-in. Pastikan anda berada dalam 200m dari masjid.";
@@ -499,21 +507,24 @@ const MasjidDetail = () => {
                   </Badge>
                 )}
               </div>
-              <p className="mt-2 flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-4 w-4" /> {m.address}
-              </p>
+              <div className="mt-2 flex items-start gap-1.5 text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>{m.address}</span>
+              </div>
               {m.description && (
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.description}</p>
               )}
               {masjid.description && (
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{masjid.description}</p>
               )}
-              {masjid.googleMapsUrl && (
-                <a href={masjid.googleMapsUrl} target="_blank" rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                  <ExternalLink className="h-3 w-3" /> Buka di Google Maps
-                </a>
-              )}
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${(m as unknown as { latitude?: number }).latitude ?? ""},${(m as unknown as { longitude?: number }).longitude ?? ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-xl border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-secondary transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5 text-primary" /> Dapatkan Arah (Google Maps)
+              </a>
             </div>
 
             {/* Live Status */}
@@ -768,6 +779,22 @@ const MasjidDetail = () => {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Check-in (GPS diperlukan)
               </p>
+
+              {/* Musafir toggle */}
+              <button
+                type="button"
+                onClick={() => setIsMusafir((v) => !v)}
+                className={`w-full flex items-center justify-between rounded-xl border px-3 py-2.5 text-xs transition-colors mb-2 ${
+                  isMusafir ? "border-amber-300 bg-amber-50 text-amber-800" : "border-border bg-background text-muted-foreground"
+                }`}
+              >
+                <span className="flex items-center gap-2 font-medium">
+                  <span>{isMusafir ? "✈️" : "🏠"}</span>
+                  Mod Musafir {isMusafir ? "(Aktif — radius 500m)" : "(Radius 200m)"}
+                </span>
+                <span className={`h-4 w-7 rounded-full transition-colors ${isMusafir ? "bg-amber-400" : "bg-muted"}`} />
+              </button>
+
               {checkingIn ? (
                 <div className="flex justify-center py-4">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />

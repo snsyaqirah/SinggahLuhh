@@ -18,6 +18,7 @@ router = APIRouter()
 
 # Max distance from masjid to allow check-in (meters)
 CHECKIN_MAX_DISTANCE = 200
+CHECKIN_MAX_DISTANCE_MUSAFIR = 500
 
 # Reputation points per visit type (premium prayers earn more)
 POINTS_MAP = {
@@ -160,10 +161,12 @@ async def check_in(
     if distance < 0:
         raise HTTPException(status_code=404, detail="Masjid not found")
 
-    if distance > CHECKIN_MAX_DISTANCE:
+    max_dist = CHECKIN_MAX_DISTANCE_MUSAFIR if body.is_musafir else CHECKIN_MAX_DISTANCE
+    if distance > max_dist:
+        mode = "musafir (500m)" if body.is_musafir else f"{CHECKIN_MAX_DISTANCE}m"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Anda terlalu jauh dari masjid ({distance:.0f}m). Check-in perlu dalam {CHECKIN_MAX_DISTANCE}m."
+            detail=f"Anda terlalu jauh dari masjid ({distance:.0f}m). Check-in perlu dalam {mode}."
         )
 
     # 2. Record visit (unique DB index prevents same masjid+type+day)
@@ -174,6 +177,7 @@ async def check_in(
             'visit_type': body.visit_type,
             'user_location': f'POINT({body.longitude} {body.latitude})',
             'distance_meters': round(distance, 2),
+            'is_musafir': body.is_musafir,
         }).execute()
     except Exception as e:
         err = str(e).lower()
