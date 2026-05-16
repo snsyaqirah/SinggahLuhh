@@ -162,12 +162,6 @@ graph TD
     C --> E["Supabase<br/>Auth + Storage"]
     C --> F["External Services<br/>Maps, SMTP, etc"]
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a high-level architecture diagram in Mermaid graph TD for SinggahLuhh.
-Include: React frontend (PWA), FastAPI backend (with JWT), PostgreSQL + PostGIS, Supabase (Auth + Storage), external services (Maps, SMTP).
-Use subgraph to group frontend, backend, database layers.
--->
 
 ### System Architecture
 
@@ -201,13 +195,6 @@ graph TD
     end
     Client --> Router
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a detailed system architecture diagram in Mermaid graph TD for SinggahLuhh.
-Include all layers: frontend (pages → components → hooks → API client), backend (routes → auth middleware → controllers → services → Supabase SDK), database (PostgreSQL + PostGIS), storage.
-Use subgraph to group each layer clearly.
-Show data flow arrows between layers.
--->
 
 ---
 
@@ -251,39 +238,48 @@ flowchart TD
     D --> Y["⭐ Ibadah Saya"]
     Y --> Z["Khatam Al-Quran /  Solat Sunat"]
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a user flow diagram in Mermaid flowchart TD for SinggahLuhh.
-Cover: landing → auth → browse/discover → GPS check-in (with geofence validation) → reputation earned → dashboard → leaderboard → prayer groups → ibadah tracker.
-Include decision nodes for auth state, geofence validation, error states.
-Use emojis to make it visually distinct.
--->
 
 ### Page Map
 
 ```mermaid
-graph LR
-    A["/"] --> B["/login"]
-    A --> C["/register"]
-    A --> D["/browse"]
-    A --> E["/map"]
-    D --> F["/masjid/:id"]
-    F --> G["/profile"]
-    H["/dashboard"] --> I["/leaderboard"]
-    H --> J["/badges"]
-    H --> K["/history"]
-    L["/groups"] --> M["/groups/:id"]
-    N["/bookmarks"]
-    O["/ibadah-saya"]
-    P["/admin"] --> Q["/admin/reports"]
+graph TD
+    subgraph Public ["🌐 Public Routes"]
+        ROOT["/"]
+        BROWSE["/browse"]
+        MAP["/map"]
+        DETAIL["/masjid/:id"]
+        AUTH["/auth"]
+        RESET["/reset-password"]
+        PRIV["/privacy"]
+        TERMS["/terms"]
+        FAQ["/faq"]
+        CL["/changelog"]
+    end
+
+    subgraph Protected ["🔐 Protected Routes (auth required)"]
+        TRACKING["/tracking"]
+        PROFILE["/profile"]
+        ADD["/add"]
+        BOOKMARKS["/bookmarks"]
+        IBADAH["/ibadah"]
+        GROUPS["/groups"]
+        GROUP_D["/groups/:id"]
+        ADMIN["/admin"]
+    end
+
+    ROOT --> BROWSE
+    ROOT --> MAP
+    ROOT --> DETAIL
+    ROOT --> AUTH
+    BROWSE --> DETAIL
+    MAP --> DETAIL
+    DETAIL --> TRACKING
+    AUTH --> TRACKING
+    GROUPS --> GROUP_D
+
+    style Public fill:#e8f5e9,stroke:#4caf50
+    style Protected fill:#e3f2fd,stroke:#2196f3
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a page map in Mermaid graph LR for SinggahLuhh.
-List all frontend routes: public (/, /login, /register, /browse, /map, /masjid/:id), protected (/dashboard, /profile, /groups, /bookmarks, /ibadah-saya, /admin).
-Show navigation connections between them.
-Group protected vs public routes visually.
--->
 
 ### Wireframe Overview
 
@@ -339,14 +335,6 @@ graph TD
         G1 --> G2 --> G3 --> G4 --> G5
     end
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a wireframe overview diagram in Mermaid graph TD for SinggahLuhh.
-Use one subgraph per major page: Home, Browse, MasjidDetail, Dashboard, Groups, etc.
-Inside each subgraph, list the main UI sections in order (top to bottom).
-Label each subgraph with emoji + page name.
-Make it detailed enough to understand page structure at a glance.
--->
 
 ---
 
@@ -386,13 +374,6 @@ sequenceDiagram
     API-->>FE: JSON response
     FE-->>U: UI update
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a full auth sequence diagram in Mermaid sequenceDiagram for SinggahLuhh.
-Cover: 3-step signup → OTP verification → profile auto-created → login → token storage → subsequent API calls.
-Use participant labels: User, Frontend, Backend (FastAPI), Supabase Auth, PostgreSQL.
-Show token flow, localStorage storage, and middleware validation.
--->
 
 ### Token Lifecycle
 
@@ -416,13 +397,6 @@ sequenceDiagram
     FE->>API: Retry original request + new accessToken
     API-->>FE: 200 OK + data
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a token lifecycle / refresh flow diagram in Mermaid sequenceDiagram for SinggahLuhh.
-Show: authenticated request → 401 expiry → silent refresh from localStorage → token validation → retry.
-Include what's stored in localStorage (access_token, refresh_token, user object).
-Cover both successful refresh and token rotation.
--->
 
 ---
 
@@ -503,14 +477,6 @@ erDiagram
     PROFILES ||--o{ MASJIDS : "creates"
     PROFILES ||--o{ MASJID_FACILITIES : "edits"
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a core ERD in Mermaid erDiagram format for SinggahLuhh.
-Include primary tables: profiles (auth + reputation), masjids (prayer places), masjid_facilities, masjid_media, user_visits (check-ins).
-Show: column name, data type, PK/FK annotations.
-Show relationships with correct cardinality.
-Use geometry for location columns (PostGIS).
--->
 
 ### Feature / Social ERD
 
@@ -673,14 +639,6 @@ erDiagram
     PRAYER_GROUPS ||--o{ PRAYER_GROUP_MEMBERS : "has"
     BADGES ||--o{ USER_BADGES : "awarded via"
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a feature/social ERD in Mermaid erDiagram format for SinggahLuhh.
-Include: bookmarks, diary_entries, khatam_logs, special_prayer_logs, events, announcements, lost_found_posts, iftar_threads, live_updates, prayer_groups, prayer_group_members, verifications, badges, user_badges.
-Show relationships back to profiles and masjids.
-Show all columns with types.
-This is the "social / community" ERD (separate from core ERD).
--->
 
 ### Database Schema Overview
 
@@ -799,13 +757,6 @@ mindmap
     feedback
       POST / - submit feedback
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate an API mindmap in Mermaid mindmap format for SinggahLuhh.
-Group all endpoints by domain: auth, masjids, facilities, checkins, verifications, live-updates, dashboard, bookmarks, diary, khatam, special-prayers, events, announcements, lost-found, iftar, prayer-groups, trending, feedback.
-Show HTTP method + path for each endpoint.
-Use mindmap because there are 60+ endpoints across 18 domains.
--->
 
 ### Request/Response Flow (Check-in Example)
 
@@ -844,12 +795,6 @@ sequenceDiagram
         FE-->>U: Toast + confetti animation
     end
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a request/response flow diagram in Mermaid sequenceDiagram for SinggahLuhh check-in feature.
-Show: frontend → auth middleware → controller → geofence validation → DB query → update reputation + streak → success/error paths.
-Include error paths (too far, duplicate, unauthorized).
--->
 
 ---
 
@@ -890,13 +835,6 @@ graph TD
     
     App --> SharedComps["Shared Components<br/>InstallPrompt<br/>FeedbackButton<br/>Modals"]
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a component tree in Mermaid graph TD for SinggahLuhh.
-Show hierarchy: App → Providers (AuthContext) → Header/Footer → Pages (Index, Browse, Detail, Dashboard, Groups, Bookmarks, Ibadah, Map, Profile, Admin).
-Include Detail page sections (Check-in, Facilities, Events, etc) as sub-nodes.
-Include shared components (MasjidCard, Leaderboard, InstallPrompt, FeedbackButton).
--->
 
 ### Key Components
 
@@ -967,12 +905,6 @@ sequenceDiagram
         FE->>FE: Refresh dashboard stats
     end
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a check-in flow sequence diagram in Mermaid sequenceDiagram for SinggahLuhh.
-Show: user taps check-in → request device GPS → geofence validation (distance < 200m) → check duplicate (same masjid + prayer + date) → success path (insert visit, update reputation + streak, check badge thresholds) → error paths (too far, duplicate).
-Include exact point values (Subuh 15 pts, other prayers 10 pts).
--->
 
 ### Gamification & Points Flow
 
@@ -1013,12 +945,6 @@ flowchart TD
     J -->|No threshold met| R([Done])
     Q --> R
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a gamification flow diagram in Mermaid flowchart TD for SinggahLuhh.
-Show: user action → points awarded (Subuh 15, prayers 10, facilities 10, updates 5, votes 5, photos 5) → reputation update → badge threshold check → award badge if met.
-List all badges: Subuh Warrior (7-day streak), Musafir Tegar (3 states), Kucing Lover (5 mosques), AJK Iftar (first), Ramadan Champion (20 terawih), Masjid Hunter (50 unique).
--->
 
 ### Community Verification Flow
 
@@ -1042,12 +968,6 @@ flowchart TD
     M --> O
     N --> O
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a community verification flow in Mermaid flowchart TD for SinggahLuhh.
-Show: masjid submission → unverified → users upvote/downvote → auto-verify at 3+ upvotes → verified badge.
-Include report flow: report reasons → admin review → action (reject, merge, delete) → resolution notes.
--->
 
 ### Role & Permission Matrix
 
@@ -1139,13 +1059,6 @@ graph LR
     Browser1["🌐 Browser"] --> D1
     Browser2["🌐 Browser"] --> P1
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a Docker Compose dev vs prod diagram in Mermaid graph LR for SinggahLuhh.
-Show two subgraphs: Dev (Vite with hot reload, both ports exposed) and Prod (nginx, internal backend).
-Include port numbers, volume mounts, and proxy configuration.
-Show browser connections to each.
--->
 
 **Development (hot reload)**
 
@@ -1237,13 +1150,6 @@ graph LR
     BE --> SB[("Supabase<br/>(DB + Auth + Storage)")]
     BE --> EXT["External APIs<br/>(Maps, SMTP)"]
 ```
-<!--
-PROMPT FOR CLAUDE CODE:
-Generate a deployment diagram in Mermaid graph LR for SinggahLuhh.
-Show: GitHub push → CI/CD pipeline (GitHub Actions) → Vercel (frontend) + Cloud Run (backend).
-Show backend connections to Supabase and external services.
-Include platform names and what each hosts.
--->
 
 | Service | Platform | Purpose |
 |---|---|---|
