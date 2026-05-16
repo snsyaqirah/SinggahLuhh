@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MasjidCard from "@/components/MasjidCard";
-import { masjidsApi, statsApi } from "@/lib/api";
+import { masjidsApi, statsApi, trendingApi, type TrendingMasjid } from "@/lib/api";
 import type { Masjid } from "@/types";
 import heroImage from "@/assets/hero-mosque.jpg";
 
@@ -19,7 +19,13 @@ const Index = () => {
   const { data: publicStats } = useQuery({
     queryKey: ["stats", "public"],
     queryFn: () => statsApi.public(),
-    staleTime: 5 * 60 * 1000, // 5 min cache
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: trending } = useQuery({
+    queryKey: ["trending"],
+    queryFn: () => trendingApi.list(8),
+    staleTime: 10 * 60 * 1000,
   });
 
   return (
@@ -188,6 +194,56 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      {/* Trending */}
+      {trending && trending.length > 0 && (
+        <section className="container mx-auto px-4 py-10 md:py-16">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">
+                🔥 Trending Minggu Ini
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Aktif paling banyak berdasarkan kunjungan & kemaskini
+              </p>
+            </div>
+            <Button asChild variant="ghost" className="text-primary font-semibold text-sm">
+              <Link to="/browse">Lihat semua <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            </Button>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1">
+            {(trending as TrendingMasjid[]).map((t, i) => {
+              const emoji = t.masjidType === "surau" ? "🏘️" : t.masjidType === "musolla" ? "🏠" : "🕌";
+              const href = `/masjid/${t.masjidSlug ?? t.masjidId}`;
+              return (
+                <Link
+                  key={t.masjidId}
+                  to={href}
+                  className="flex-shrink-0 w-52 rounded-2xl border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-2xl">{emoji}</span>
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">
+                    {t.masjidName ?? "Tempat Solat"}
+                  </p>
+                  {t.masjidState && (
+                    <p className="text-xs text-muted-foreground mt-1">{t.masjidState}</p>
+                  )}
+                  <div className="mt-3 flex items-center gap-1.5">
+                    <span className="text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                      {t.score} mata minggu ini
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="container mx-auto px-4 py-10 md:py-16 text-center">

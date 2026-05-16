@@ -673,6 +673,24 @@ export interface IftarPost {
   userId: string | null;
 }
 
+// ── Trending ──────────────────────────────────────────────────────
+
+export interface TrendingMasjid {
+  masjidId: string;
+  score: number;
+  weekOf: string;
+  masjidName: string | null;
+  masjidAddress: string | null;
+  masjidType: string | null;
+  masjidSlug: string | null;
+  masjidState: string | null;
+}
+
+export const trendingApi = {
+  list: (limit = 10) =>
+    request<TrendingMasjid[]>(`/api/v1/trending?limit=${limit}`),
+};
+
 export const iftarApi = {
   list: (masjidId?: string, season?: string) => {
     const params = new URLSearchParams();
