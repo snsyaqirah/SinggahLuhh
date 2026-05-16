@@ -9,7 +9,7 @@ import { dashboardApi, checkinsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { VISIT_TYPE_LABELS, MALAYSIA_STATES } from "@/lib/constants";
 import { Link, Navigate } from "react-router-dom";
-import type { UserStats, VisitHistory, Visit } from "@/types";
+import type { UserStats, VisitHistory, Visit, PrayerType } from "@/types";
 
 const PRAYER_LABELS: Record<PrayerType, string> = {
   subuh: "Subuh", zohor: "Zohor", asar: "Asar",
@@ -18,8 +18,7 @@ const PRAYER_LABELS: Record<PrayerType, string> = {
 };
 
 const TrackingDashboard = () => {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/auth" replace />;
+  const { user, isLoading: authLoading } = useAuth();
 
   const [calendarDate, setCalendarDate] = useState(() => {
     const d = new Date();
@@ -30,12 +29,22 @@ const TrackingDashboard = () => {
   const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ["dashboard", "stats"],
     queryFn: () => dashboardApi.stats(),
+    enabled: !!user,
   });
 
   const { data: history, isLoading: loadingHistory } = useQuery({
     queryKey: ["checkins", "history"],
     queryFn: () => checkinsApi.history(),
+    enabled: !!user,
   });
+
+  // Wait for session to resolve before deciding to redirect
+  if (authLoading) return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
+  if (!user) return <Navigate to="/auth" replace />;
 
   const s = stats as UserStats | undefined;
   const h = history as VisitHistory | undefined;
@@ -79,6 +88,7 @@ const TrackingDashboard = () => {
   const isCurrentMonth = calYear === new Date().getFullYear() && calMonth === new Date().getMonth();
 
   const isLoading = loadingStats || loadingHistory;
+
 
   return (
     <div className="min-h-screen bg-background">
