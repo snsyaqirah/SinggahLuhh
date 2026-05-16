@@ -1,19 +1,23 @@
 # SinggahLuhh
 
-**Cari, jejak, dan kongsi masjid berhampiran anda.**
+**Cari, jejak, dan kongsi tempat solat berhampiran anda.**
 
-SinggahLuhh is a community-driven mosque discovery and visit tracking app for Malaysia. Users discover mosques, check in to earn streaks and reputation, contribute facility info, and share real-time crowd updates — all wrapped in gamification that rewards the Malaysian jemaah spirit.
+SinggahLuhh is a community-driven mosque, surau, and musolla discovery and visit-tracking app for Malaysia. Users discover prayer places, check in to earn streaks and reputation, contribute facility info, share real-time crowd updates, form prayer groups with friends, and track personal ibadah — all wrapped in gamification that rewards the Malaysian jemaah spirit.
 
 ---
 
 ## Table of Contents
 
 - [Features](#features)
-- [System Architecture](#system-architecture)
+- [High-level Architecture](#high-level-architecture)
+- [User Flow](#user-flow)
 - [Tech Stack](#tech-stack)
+- [Component Overview](#component-overview)
 - [Database Schema](#database-schema)
+- [Data Flow Diagram](#data-flow-diagram)
 - [Auth Flow](#auth-flow)
 - [Check-in Flow](#check-in-flow)
+- [Wireframe Overview](#wireframe-overview)
 - [API Overview](#api-overview)
 - [Environment Variables](#environment-variables)
 - [Running with Docker](#running-with-docker)
@@ -24,10 +28,12 @@ SinggahLuhh is a community-driven mosque discovery and visit tracking app for Ma
 ## Features
 
 ### Mosque Discovery
-- Browse all verified mosques with search and filters
-- View full facility details per mosque (AC, parking, toilets, etc.)
+- Browse masjid, surau, and musolla with search and filters (type, state, facilities)
+- Cover photos shown in browse — prioritises `main_photo`, falls back to `interior_photo`
+- Trending Masjid section on homepage — weekly computed score (check-ins × 3, live updates × 2, facility edits × 5)
+- Map view with all prayer places plotted
 - Slug-based URLs (`/masjid/masjid-al-amin-abc123`)
-- 100m radius duplicate check before adding a new mosque
+- 100 m radius duplicate check before adding a new place
 
 ### Malaysian-Specific Facilities
 | Category | Details |
@@ -42,7 +48,7 @@ SinggahLuhh is a community-driven mosque discovery and visit tracking app for Ma
 | Extra | Tourist-friendly, tahfiz, library, kids area, family-friendly |
 
 ### Visit Tracking (Langkah)
-- GPS check-in with geofencing (must be within 200m)
+- GPS check-in with geofencing (must be within 200 m)
 - Track prayer type: Subuh, Zohor, Asar, Maghrib, Isyak, Jumaat, Terawih, Iftar, Kuliah
 - Prevent duplicate check-ins for same mosque + prayer + day
 - Daily streak tracking (resets if you miss a day)
@@ -54,6 +60,7 @@ SinggahLuhh is a community-driven mosque discovery and visit tracking app for Ma
   - Add facilities → 10 pts
   - Live update → 5 pts
   - Vote → 5 pts
+  - Upload photo → 5 pts
 - **Badges** for achievements:
   | Badge | Requirement |
   |---|---|
@@ -63,26 +70,52 @@ SinggahLuhh is a community-driven mosque discovery and visit tracking app for Ma
   | Kucing Lover | Update kucing info at 5 mosques |
   | Ramadan Champion | 20 terawih check-ins |
   | Masjid Hunter | 50 unique mosques visited |
-- **Leaderboard** — top users by reputation, with your own rank shown
+- **Leaderboard** — top users by reputation, filterable by Malaysian state, name-censored for privacy (shows "First L." format except for the current user)
 
-### Community Verification
-- Upvote / downvote mosque submissions (toggle, cannot vote own submissions)
-- Downvotes require a reason
-- Auto-verify mosque at 3+ upvotes (database trigger)
+### Bookmarks & Wishlist
+- Save any prayer place to your personal bookmark list
+- Mark places as "Nak Pergi" (wishlist) — toggle between saved and wishlist
+- Dedicated Bookmarks page with two tabs
+
+### Personal Ibadah Tracker
+- **Khatam Al-Quran** — log progress by juz, surah, and ayah with optional notes
+- **Solat Sunat** — log tahajjud, dhuha, hajat, witir, istikharah, taubat, syukur, etc. with rakaat count
+
+### Personal Diary
+- Write private visit notes for any prayer place
+- Chronological diary entries per masjid, visible only to you
+
+### Community Content (per prayer place)
+- **Events** — post community events (khutbah, kuliah, program Ramadan, etc.) with type + datetime
+- **Announcements** — post notices with categories (umum, solat, kemudahan, kebersihan, keselamatan)
+- **Lost & Found** — report lost/found items; poster can mark as resolved
+- **Iftar Thread** — seasonal: rate and describe iftar experience (type + star rating + comment)
+
+### Prayer Groups & Buddy System
+- Create a group (up to 10 members) or a buddy pair (2 people)
+- Unique 8-character alphanumeric invite code generated per group
+- Copy invite code or share directly via WhatsApp
+- Group detail shows all members + their recent check-in activity
+- Admin can delete group; members can leave
 
 ### Live Crowdsourced Updates
 - Post real-time conditions: saf status, parking, iftar menu, crowd level
-- Auto-expire: 45 min for prayer/parking/crowd, 24h for iftar menu
-- Active updates shown on mosque detail page
+- Auto-expire: 45 min for prayer/parking/crowd, 24 h for iftar menu
+- Active updates shown on the prayer place detail page
+
+### Community Verification
+- Upvote / downvote mosque submissions (toggle; cannot vote own submissions)
+- Downvotes require a reason
+- Auto-verify at 3+ upvotes (database trigger)
 
 ### Reports & Moderation
-- Report mosque data issues: doesn't exist, wrong location, duplicate, inappropriate, wrong info
+- Report issues: doesn't exist, wrong location, duplicate, inappropriate, wrong info
 - Admin panel to review and resolve reports with notes
 
 ### Auth & Profile
 - Email + password signup with 6-digit OTP email verification
 - Forgot password via email reset link
-- Edit profile (name, phone, gender)
+- Edit profile (name, phone, gender, state)
 - JWT-based sessions (30 min access token, 7-day refresh token)
 - Account deletion (cascades all user data)
 
@@ -94,7 +127,7 @@ SinggahLuhh is a community-driven mosque discovery and visit tracking app for Ma
 
 ---
 
-## System Architecture
+## High-level Architecture
 
 ```mermaid
 graph TD
@@ -112,14 +145,16 @@ graph TD
 
     subgraph Supabase
         AUTH["Supabase Auth\n(email + OTP, JWT)"]
-        DB["PostgreSQL + PostGIS\n(profiles, masjids, visits, etc.)"]
+        DB["PostgreSQL + PostGIS\n(profiles, masjids, visits, groups, etc.)"]
+        STORAGE["Supabase Storage\n(masjid photos)"]
         RLS["Row-Level Security"]
     end
 
     B --> FE
     FE -- "REST /api/v1/*" --> API
-    API -- "Supabase SDK" --> AUTH
-    API -- "asyncpg / SQLAlchemy" --> DB
+    API -- "Supabase Admin SDK" --> AUTH
+    API -- "Supabase Admin SDK" --> DB
+    API -- "Supabase Admin SDK" --> STORAGE
     DB --> RLS
 
     style Client fill:#fff8f0,stroke:#c9a96e
@@ -152,6 +187,55 @@ graph LR
 
 ---
 
+## User Flow
+
+```mermaid
+flowchart TD
+    Landing([🏠 Home]) --> Browse[🔍 Browse / Search]
+    Landing --> Trending[🔥 Trending Minggu Ini]
+    Landing --> Map[🗺️ Map View]
+
+    Browse --> Detail[📍 Masjid Detail]
+    Trending --> Detail
+    Map --> Detail
+
+    Detail --> GuestActions["Read-only:\nFacilities · Events\nAnnouncements · Iftar"]
+
+    Detail --> AuthCheck{Logged in?}
+    AuthCheck -- No --> Login[Login / Register]
+    Login --> OTP[OTP Verification]
+    OTP --> AuthCheck
+
+    AuthCheck -- Yes --> CheckIn[✅ GPS Check-in]
+    CheckIn --> Points[+Reputation Points\n+Streak]
+    Points --> Badges[🎖️ Badge Check]
+
+    AuthCheck -- Yes --> Bookmark[🔖 Bookmark / Wishlist]
+    AuthCheck -- Yes --> Diary[📔 Diary Entry]
+    AuthCheck -- Yes --> AddEvent[📅 Add Event]
+    AuthCheck -- Yes --> AddAnn[📢 Add Announcement]
+    AuthCheck -- Yes --> LostFound[🔍 Lost & Found Post]
+    AuthCheck -- Yes --> IftarThread[🍽️ Iftar Rating]
+
+    Dashboard([📊 Dashboard]) --> Leaderboard[🏆 Leaderboard\nFilter by State]
+    Dashboard --> MyBadges[🎖️ My Badges]
+    Dashboard --> History[📋 Visit History]
+
+    Groups([👥 Prayer Groups]) --> CreateGroup[Create Group\nGet Invite Code]
+    Groups --> JoinGroup[Join via 8-char Code]
+    CreateGroup --> ShareWA[Share via WhatsApp]
+    ShareWA --> FriendJoins[Friend Joins]
+    JoinGroup --> GroupDetail[Group Members\n+ Recent Activity]
+
+    IbadahSaya([⭐ Ibadah Saya]) --> Khatam[📖 Khatam Al-Quran\nLog by Juz/Surah/Ayah]
+    IbadahSaya --> SolatSunat[🌙 Solat Sunat\nTahajjud · Dhuha · etc.]
+
+    Bookmarks([🔖 Senarai Saya]) --> Saved[Saved Places]
+    Bookmarks --> Wishlist[Nak Pergi Wishlist]
+```
+
+---
+
 ## Tech Stack
 
 ```mermaid
@@ -172,8 +256,6 @@ graph TD
     subgraph "Backend"
         FA["FastAPI 0.115"]
         UV["Uvicorn"]
-        SA["SQLAlchemy (async)"]
-        AL["Alembic (migrations)"]
         PJ["python-jose (JWT)"]
         SB["Supabase Python SDK"]
         GEO["geopy + PostGIS"]
@@ -181,24 +263,76 @@ graph TD
     end
 
     subgraph "Infrastructure"
-        SBA["Supabase (Auth + DB)"]
+        SBA["Supabase (Auth + DB + Storage)"]
         PG["PostgreSQL + PostGIS"]
         DK["Docker + Compose"]
-        CB["Cloud Build (GCP)"]
         VE["Vercel (frontend deploy)"]
         CR["Cloud Run (backend deploy)"]
     end
 
     FW --> UI
     FW --> TQ
-    FA --> SA --> PG
     FA --> SB --> SBA
     SBA --> PG
 ```
 
 ---
 
+## Component Overview
+
+```mermaid
+graph TD
+    App["App.tsx\n(Routes + Providers)"] --> Header
+    App --> Footer
+    App --> Pages
+
+    subgraph Pages
+        Index["Index\n(Home + Trending)"]
+        Browse["BrowseMasjid\n(Search + Filters)"]
+        Detail["MasjidDetail\n(Full info + Community)"]
+        Dashboard["TrackingDashboard\n(Stats + Leaderboard)"]
+        Groups["PrayerGroups\n(List + Create + Join)"]
+        GroupDetail["PrayerGroupDetail\n(Members + Activity)"]
+        Bookmarks["Bookmarks\n(Saved + Wishlist tabs)"]
+        Ibadah["IbadahSaya\n(Khatam + Solat Sunat tabs)"]
+        Map["MapView"]
+        Profile["Profile"]
+        AddMasjid["AddMasjid"]
+        Admin["AdminPanel"]
+    end
+
+    subgraph "MasjidDetail Sections"
+        CI["Check-in Widget"]
+        BK["Bookmark / Wishlist Buttons"]
+        LU["Live Updates"]
+        VF["Verification Panel"]
+        ANN["Announcements + Add Form"]
+        EVT["Events + Add Form"]
+        DR["Diary + Entry Form"]
+        LF["Lost & Found"]
+        IF["Iftar Thread"]
+        FAC["Facilities Detail"]
+        MED["Photo Gallery"]
+    end
+
+    subgraph "Shared Components"
+        MasjidCard["MasjidCard\n(cover photo + badges)"]
+        HeaderComp["Header\n(nav + auth dropdown)"]
+        InstallPrompt["InstallPrompt (PWA)"]
+        FeedbackBtn["FeedbackButton"]
+    end
+
+    Index --> MasjidCard
+    Browse --> MasjidCard
+    Detail --> CI & BK & LU & VF & ANN & EVT & DR & LF & IF & FAC & MED
+    App --> HeaderComp & InstallPrompt & FeedbackBtn
+```
+
+---
+
 ## Database Schema
+
+### Core ERD
 
 ```mermaid
 erDiagram
@@ -207,10 +341,13 @@ erDiagram
         text full_name
         text phone_number
         text gender
+        text state
         int reputation_points
         int streak_count
         int longest_streak
         timestamp last_checkin_at
+        bool is_admin
+        bool is_banned
         timestamp created_at
         timestamp deleted_at
     }
@@ -219,11 +356,13 @@ erDiagram
         uuid id PK
         text name
         text address
+        text type
         geometry location
         text status
         int verification_count
         text description
         text slug
+        text state
         uuid created_by FK
         timestamp created_at
         timestamp deleted_at
@@ -254,8 +393,9 @@ erDiagram
         text media_type
         text url
         bool is_verified
-        int verification_count
         uuid created_by FK
+        timestamp created_at
+        timestamp deleted_at
     }
 
     user_visits {
@@ -267,6 +407,7 @@ erDiagram
         geometry user_location
         numeric distance_meters
         timestamp created_at
+        timestamp deleted_at
     }
 
     verifications {
@@ -331,6 +472,186 @@ erDiagram
     badges ||--o{ user_badges : "awarded via"
 ```
 
+### Community & Social ERD
+
+```mermaid
+erDiagram
+    bookmarks {
+        uuid id PK
+        uuid user_id FK
+        uuid masjid_id FK
+        bool is_wishlist
+        timestamp created_at
+    }
+
+    diary_entries {
+        uuid id PK
+        uuid user_id FK
+        uuid masjid_id FK
+        text content
+        date visit_date
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    khatam_logs {
+        uuid id PK
+        uuid user_id FK
+        int juz
+        int surah_from
+        int ayah_from
+        int surah_to
+        int ayah_to
+        text notes
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    special_prayer_logs {
+        uuid id PK
+        uuid user_id FK
+        text prayer_type
+        int rakaat
+        text notes
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    events {
+        uuid id PK
+        uuid masjid_id FK
+        uuid user_id FK
+        text title
+        text event_type
+        timestamp starts_at
+        timestamp ends_at
+        text description
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    announcements {
+        uuid id PK
+        uuid masjid_id FK
+        uuid user_id FK
+        text title
+        text body
+        text category
+        timestamp expires_at
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    lost_found_posts {
+        uuid id PK
+        uuid masjid_id FK
+        uuid user_id FK
+        text description
+        bool is_resolved
+        timestamp expires_at
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    iftar_threads {
+        uuid id PK
+        uuid masjid_id FK
+        uuid user_id FK
+        text iftar_type
+        text description
+        int rating
+        text ramadan_season
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    trending_masjids {
+        uuid id PK
+        uuid masjid_id FK
+        int score
+        date week_of
+        timestamp computed_at
+    }
+
+    prayer_groups {
+        uuid id PK
+        text name
+        text type
+        text invite_code
+        uuid created_by FK
+        int max_members
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    prayer_group_members {
+        uuid id PK
+        uuid group_id FK
+        uuid user_id FK
+        text role
+        timestamp joined_at
+    }
+
+    profiles ||--o{ bookmarks : "saves"
+    profiles ||--o{ diary_entries : "writes"
+    profiles ||--o{ khatam_logs : "logs"
+    profiles ||--o{ special_prayer_logs : "logs"
+    profiles ||--o{ events : "posts"
+    profiles ||--o{ announcements : "posts"
+    profiles ||--o{ lost_found_posts : "posts"
+    profiles ||--o{ iftar_threads : "posts"
+    profiles ||--o{ prayer_groups : "creates"
+    profiles ||--o{ prayer_group_members : "joins"
+    masjids ||--o{ bookmarks : "bookmarked in"
+    masjids ||--o{ diary_entries : "has"
+    masjids ||--o{ events : "has"
+    masjids ||--o{ announcements : "has"
+    masjids ||--o{ lost_found_posts : "has"
+    masjids ||--o{ iftar_threads : "has"
+    masjids ||--o{ trending_masjids : "ranks in"
+    prayer_groups ||--o{ prayer_group_members : "has"
+```
+
+---
+
+## Data Flow Diagram
+
+```mermaid
+flowchart LR
+    User([👤 User]) -->|interacts| FE
+
+    subgraph FE ["Frontend (React + TanStack Query)"]
+        Cache["Query Cache"] --> UI["UI Components"]
+        UI -->|mutations| APIClient["API Client\n/lib/api.ts"]
+    end
+
+    subgraph BE ["Backend (FastAPI)"]
+        Router["Router /api/v1"] --> Endpoints
+        Endpoints --> Deps["JWT Validation\nget_current_user()"]
+        Deps --> AdminSDK["Supabase Admin SDK\n(bypasses RLS)"]
+    end
+
+    subgraph SB ["Supabase"]
+        Auth["Auth Service\n(OTP · JWT)"]
+        DB[("PostgreSQL\n+ PostGIS")]
+        Storage["Storage\n(photo uploads)"]
+    end
+
+    APIClient -->|"Bearer token\nREST /api/v1/*"| Router
+    AdminSDK --> Auth
+    AdminSDK --> DB
+    AdminSDK --> Storage
+    DB -->|row data| AdminSDK
+    BE -->|JSON response| Cache
+
+    Auth -->|OTP email| SMTP["📧 Email (SMTP)"]
+    SMTP --> User
+
+    style FE fill:#e8f5e9,stroke:#4caf50
+    style BE fill:#e3f2fd,stroke:#2196f3
+    style SB fill:#fce4ec,stroke:#e91e63
+```
+
 ---
 
 ## Auth Flow
@@ -365,8 +686,8 @@ sequenceDiagram
     FE->>API: Request + Authorization: Bearer {access_token}
     API->>SB: Validate JWT
     SB-->>API: user_id from token claims
-    API->>DB: Query with user_id
-    DB-->>API: Data (RLS enforced)
+    API->>DB: Query with user_id (admin SDK)
+    DB-->>API: Data
     API-->>FE: Response
 
     Note over U,DB: Token Refresh
@@ -389,9 +710,9 @@ sequenceDiagram
 
     U->>FE: Tap check-in at masjid page
     FE->>FE: Get device GPS coordinates
-    FE->>API: POST /api/v1/checkins\n{masjid_id, visit_type, lat, lon}
+    FE->>API: POST /api/v1/checkins {masjid_id, visit_type, lat, lon}
 
-    API->>DB: SELECT distance from user to masjid\n(PostGIS ST_Distance)
+    API->>DB: SELECT distance from user to masjid (PostGIS ST_Distance)
     DB-->>API: distance_meters
 
     alt distance > 200m
@@ -406,7 +727,67 @@ sequenceDiagram
         API->>DB: UPDATE profiles SET streak_count
         DB-->>API: Success
         API-->>FE: 201 + new reputation + streak
-        FE-->>U: Toast notification (streak + points earned)
+        FE-->>U: Toast (streak + points earned)
+    end
+```
+
+---
+
+## Wireframe Overview
+
+Key page layouts at a glance:
+
+```mermaid
+graph TD
+    subgraph Home ["🏠 Home"]
+        H1["Header (nav)"]
+        H2["Hero — tagline + CTA"]
+        H3["Stats bar (total masjids / visits)"]
+        H4["🔥 Trending Minggu Ini (horizontal scroll)"]
+        H5["Popular Masjids grid"]
+        H6["Feature highlights"]
+        H1 --> H2 --> H3 --> H4 --> H5 --> H6
+    end
+
+    subgraph Browse ["🔍 Browse"]
+        B1["Search input"]
+        B2["Type chips (Masjid · Surau · Musolla)"]
+        B3["Facility filter tags (scrollable)"]
+        B4["Sort toggle"]
+        B5["MasjidCard grid\n(cover photo + badges)"]
+        B1 --> B2 --> B3 --> B4 --> B5
+    end
+
+    subgraph MasjidDetail ["📍 Masjid Detail"]
+        D1["Photo gallery"]
+        D2["Name · Type · Address · Status"]
+        D3["Check-in button (GPS)"]
+        D4["Bookmark / Wishlist toggles"]
+        D5["Facilities panel"]
+        D6["Live Updates"]
+        D7["Announcements + Events"]
+        D8["Diary · Lost&Found · Iftar Thread"]
+        D1 --> D2 --> D3 --> D4 --> D5 --> D6 --> D7 --> D8
+    end
+
+    subgraph Dashboard ["📊 Dashboard"]
+        K1["Visit stats (total · streak · unique)"]
+        K2["Visit calendar heatmap"]
+        K3["Badges earned"]
+        K4["Leaderboard (state filter + censored names)"]
+        K1 --> K2 --> K3 --> K4
+    end
+
+    subgraph Groups ["👥 Prayer Groups"]
+        G1["Buat Kumpulan / Join dengan Kod buttons"]
+        G2["Create form (name + type)"]
+        G3["Join form (8-char code input)"]
+        G4["Groups list → Group Detail"]
+        G4 --> G5["Invite code (large mono) + Copy + WhatsApp"]
+        G4 --> G6["Members list + Recent activity feed"]
+        G1 --> G2
+        G1 --> G3
+        G1 --> G4
     end
 ```
 
@@ -431,19 +812,23 @@ mindmap
       POST /update-password
       DELETE /account
     masjids
-      GET / - browse list
-      GET /stats - public stats
-      POST /check-nearby - dup check
+      GET / - browse + cover photos
+      GET /stats
+      POST /check-nearby
       POST / - add masjid
       GET /:id - detail
-      PATCH /:id - update
-      DELETE /:id - soft delete
+      PATCH /:id
+      DELETE /:id
+      GET /:id/media
+      POST /:id/media
+      POST /:id/media/upload
+      DELETE /:id/media/:mid
     facilities
       GET /:masjid_id
       POST /:masjid_id
       PATCH /:masjid_id
     checkins
-      POST / - check-in
+      POST / - GPS check-in
       GET /history
     verifications
       POST /vote
@@ -459,10 +844,53 @@ mindmap
     dashboard
       GET /stats
       GET /badges
-      GET /leaderboard
+      GET /leaderboard?state=
     profile
       GET /me
       PATCH /me
+    bookmarks
+      GET /
+      POST /
+      GET /status/:masjid_id
+      DELETE /:masjid_id
+    diary
+      GET /?masjid_id=
+      POST /
+      DELETE /:id
+    khatam
+      GET /
+      POST /
+      DELETE /:id
+    special-prayers
+      GET /
+      POST /
+      DELETE /:id
+    events
+      GET /?masjid_id=
+      POST /
+      DELETE /:id
+    announcements
+      GET /?masjid_id=
+      POST /
+      DELETE /:id
+    lost-found
+      GET /?masjid_id=
+      POST /
+      PATCH /:id/resolve
+      DELETE /:id
+    iftar
+      GET /?masjid_id=&season=
+      POST /
+      DELETE /:id
+    trending
+      GET /?limit=
+    groups
+      GET / - my groups
+      POST / - create
+      POST /join?invite_code=
+      GET /:id - detail
+      DELETE /:id/leave
+      DELETE /:id
     feedback
       POST /
       GET /admin
@@ -481,9 +909,6 @@ APP_VERSION=0.1.0
 DEBUG=true
 ENVIRONMENT=development
 
-# Database (Supabase connection string)
-DATABASE_URL=postgresql+asyncpg://postgres:<password>@<host>:5432/postgres
-
 # Supabase
 SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_ANON_KEY=<anon key>
@@ -497,11 +922,6 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # CORS (comma-separated JSON array)
 ALLOWED_ORIGINS=["http://localhost:5173"]
-
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/auth/google/callback
 
 # Email (SMTP)
 SMTP_HOST=
@@ -519,6 +939,8 @@ MASJID_DUPLICATE_RADIUS_METERS=100
 
 ```env
 VITE_API_URL=http://localhost:8000
+VITE_SUPABASE_URL=https://<project>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon key>
 ```
 
 ---
@@ -579,41 +1001,88 @@ docker compose exec backend bash
 
 ```
 SinggahLuhh/
-├── docker-compose.yml          # Dev: Vite + FastAPI with hot reload
-├── docker-compose.prod.yml     # Prod: nginx + FastAPI
-├── .dockerignore
+├── docker-compose.yml              # Dev: Vite + FastAPI with hot reload
+├── docker-compose.prod.yml         # Prod: nginx + FastAPI
 │
 ├── backend/
 │   ├── Dockerfile
-│   ├── .dockerignore
-│   ├── .env                    # Secret — not committed
-│   ├── .env.example            # Template
+│   ├── .env                        # Secret — not committed
+│   ├── .env.example
 │   ├── requirements.txt
 │   └── app/
-│       ├── main.py             # FastAPI app, CORS, lifespan
+│       ├── main.py                 # FastAPI app, CORS, lifespan
 │       ├── core/
-│       │   └── config.py       # Settings (pydantic-settings)
-│       ├── api/
-│       │   └── v1/
-│       │       ├── router.py   # Master router
-│       │       └── endpoints/  # auth, masjids, checkins, etc.
-│       └── schemas/            # Pydantic request/response models
+│       │   ├── config.py           # Settings (pydantic-settings)
+│       │   ├── deps.py             # get_current_user dependency
+│       │   └── supabase.py         # Admin + anon client factory
+│       ├── schemas/
+│       │   └── base.py             # CamelModel (snake → camelCase)
+│       └── api/v1/
+│           ├── router.py           # Master router
+│           └── endpoints/
+│               ├── auth.py
+│               ├── masjids_new.py  # Browse (with cover photo), detail, media upload
+│               ├── facilities_new.py
+│               ├── checkin.py
+│               ├── live_updates_new.py
+│               ├── verification_new.py
+│               ├── dashboard.py    # Stats, badges, leaderboard (state filter)
+│               ├── profile.py
+│               ├── bookmarks.py
+│               ├── diary.py
+│               ├── khatam.py
+│               ├── special_prayers.py
+│               ├── events.py
+│               ├── announcements.py
+│               ├── lost_found.py
+│               ├── iftar.py
+│               ├── trending.py     # Weekly trending (auto-compute via RPC)
+│               ├── prayer_groups.py
+│               └── feedback.py
 │
 └── frontend/
-    ├── Dockerfile              # Multi-stage: dev (Vite) + prod (nginx)
-    ├── nginx.conf              # SPA routing + /api proxy
-    ├── .dockerignore
-    ├── .env                    # VITE_API_URL
+    ├── Dockerfile                  # Multi-stage: dev (Vite) + prod (nginx)
+    ├── nginx.conf                  # SPA routing + /api proxy
+    ├── .env
     ├── vite.config.ts
     ├── tailwind.config.ts
-    ├── index.html
     └── src/
         ├── main.tsx
-        ├── App.tsx             # Routes
-        ├── contexts/           # AuthContext (tokens, user state)
-        ├── pages/              # Home, Browse, MasjidDetail, Tracking, etc.
-        ├── components/         # Shared UI components
-        ├── hooks/              # Custom React hooks
-        ├── lib/                # API client, utils
-        └── types/              # TypeScript types
+        ├── App.tsx                 # All routes
+        ├── types/
+        │   └── index.ts            # Masjid, Facilities, Visit, etc.
+        ├── contexts/
+        │   └── AuthContext.tsx     # Tokens, user state, login/logout
+        ├── lib/
+        │   ├── api.ts              # All API calls (groupsApi, trendingApi, etc.)
+        │   ├── constants.ts        # QUICK_TAGS, MALAYSIA_STATES, etc.
+        │   └── utils.ts            # toTitleCase, censorName, cn()
+        ├── hooks/
+        │   └── use-toast.ts
+        ├── components/
+        │   ├── Header.tsx          # Nav with auth dropdown + mobile menu
+        │   ├── Footer.tsx
+        │   ├── MasjidCard.tsx      # Card with cover photo + type/facility badges
+        │   ├── InstallPrompt.tsx   # PWA install banner
+        │   └── FeedbackButton.tsx
+        └── pages/
+            ├── Index.tsx           # Home: stats + trending + popular
+            ├── BrowseMasjid.tsx    # Search, type/facility filters
+            ├── MasjidDetail.tsx    # Full detail + check-in + community sections
+            ├── TrackingDashboard.tsx  # Stats, leaderboard, badges, history
+            ├── MapView.tsx
+            ├── AddMasjid.tsx
+            ├── Bookmarks.tsx       # Saved + Wishlist tabs
+            ├── IbadahSaya.tsx      # Khatam Al-Quran + Solat Sunat tabs
+            ├── PrayerGroups.tsx    # My groups + create + join
+            ├── PrayerGroupDetail.tsx  # Members, activity, invite code sharing
+            ├── Profile.tsx
+            ├── AdminPanel.tsx
+            ├── Auth.tsx
+            ├── ResetPassword.tsx
+            ├── PrivacyPolicy.tsx
+            ├── Terms.tsx
+            ├── FAQ.tsx
+            ├── Changelog.tsx
+            └── NotFound.tsx
 ```
