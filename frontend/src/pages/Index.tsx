@@ -53,15 +53,15 @@ const Index = () => {
             </h1>
 
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-primary-foreground/80 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-              Rekod masjid yang anda singgah, kongsi review dengan komuniti,
-              dan temui masjid terbaik berdekatan anda.
+              Rekod masjid, surau & musolla yang anda singgah, kongsi review dengan komuniti,
+              dan temui tempat solat terbaik berdekatan anda.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
               <Button asChild size="lg" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base px-8">
                 <Link to="/browse">
                   <MapPin className="mr-2 h-5 w-5" />
-                  Cari Masjid
+                  Cari Tempat Solat
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-xl border-primary-foreground/50 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 font-semibold text-base px-8">
@@ -82,7 +82,7 @@ const Index = () => {
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
               {publicStats?.total_masjids ?? "—"}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground md:text-sm">Masjid Didaftarkan</p>
+            <p className="mt-1 text-xs text-muted-foreground md:text-sm">Tempat Solat Didaftarkan</p>
           </div>
           <div>
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
@@ -94,7 +94,7 @@ const Index = () => {
             <p className="font-serif text-2xl font-bold text-primary md:text-3xl">
               {publicStats?.verified_masjids ?? "—"}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground md:text-sm">Masjid Disahkan</p>
+            <p className="mt-1 text-xs text-muted-foreground md:text-sm">Tempat Solat Disahkan</p>
           </div>
         </div>
       </section>
@@ -106,7 +106,7 @@ const Index = () => {
             Macam mana ia berfungsi?
           </h2>
           <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-            Tiga langkah mudah untuk mula menjejaki masjid anda
+            Tiga langkah mudah untuk mula menjejaki tempat solat anda
           </p>
         </div>
 
@@ -115,7 +115,7 @@ const Index = () => {
             {
               icon: MapPin,
               title: "Cari atau Tambah",
-              description: "Cari masjid berdekatan atau tambah masjid baru yang anda kunjungi. Lengkapkan info fasiliti untuk bantu orang lain.",
+              description: "Cari masjid, surau, atau musolla berdekatan, atau tambah tempat solat baru yang anda kunjungi. Lengkapkan info fasiliti untuk bantu orang lain.",
               step: "01",
             },
             {
@@ -149,7 +149,7 @@ const Index = () => {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
-                Masjid Popular
+                Tempat Solat Popular
               </h2>
               <p className="mt-2 text-muted-foreground">
                 Paling banyak dikunjungi dan highest rated oleh komuniti
@@ -173,15 +173,15 @@ const Index = () => {
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-card py-16 text-center">
               <Moon className="mb-4 h-12 w-12 text-primary/30" />
               <h3 className="font-serif text-lg font-semibold text-foreground">
-                Belum ada masjid popular lagi
+                Belum ada tempat solat popular lagi
               </h3>
               <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                Jadilah yang pertama! Tambah masjid yang anda kunjungi dan bantu komuniti.
+                Jadilah yang pertama! Tambah tempat solat yang anda kunjungi dan bantu komuniti.
               </p>
               <Button asChild className="mt-6 rounded-xl font-semibold" size="sm">
                 <Link to="/add">
                   <MapPin className="mr-2 h-4 w-4" />
-                  Tambah Masjid
+                  Tambah Tempat Solat
                 </Link>
               </Button>
             </div>
@@ -194,10 +194,10 @@ const Index = () => {
         <div className="mx-auto max-w-lg rounded-2xl border bg-card p-8 md:p-12">
           <Compass className="mx-auto h-10 w-10 text-accent mb-4" />
           <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">
-            Masjid mana anda dah singgah?
+            Tempat solat mana anda dah singgah?
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Mula rekod kunjungan masjid anda dan kongsi pengalaman dengan komuniti.
+            Mula rekod kunjungan masjid, surau & musolla anda dan kongsi pengalaman dengan komuniti.
           </p>
           <Button asChild size="lg" className="mt-6 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-8">
             <Link to="/browse">

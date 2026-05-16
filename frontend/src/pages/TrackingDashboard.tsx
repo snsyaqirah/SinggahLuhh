@@ -112,7 +112,7 @@ const TrackingDashboard = () => {
           <Button asChild className="rounded-xl gap-2 hidden sm:flex">
             <Link to="/add">
               <PlusCircle className="h-4 w-4" />
-              Tambah Masjid
+              Tambah Tempat Solat
             </Link>
           </Button>
         </div>
@@ -121,7 +121,7 @@ const TrackingDashboard = () => {
           <Button asChild className="w-full rounded-xl gap-2">
             <Link to="/add">
               <PlusCircle className="h-4 w-4" />
-              Tambah Masjid
+              Tambah Tempat Solat
             </Link>
           </Button>
         </div>

@@ -48,6 +48,8 @@ export interface Masjid {
   type: PlaceType;
   state: string | null;
   district: string | null;
+  latitude: number;
+  longitude: number;
   verification_count: number;
   created_at: string;
   created_by: string | null;

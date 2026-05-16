@@ -92,7 +92,7 @@ const Header = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/add" className="flex items-center gap-2 cursor-pointer">
                     <PlusCircle className="h-4 w-4" />
-                    Tambah Masjid
+                    Tambah Tempat Solat
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
@@ -161,7 +161,7 @@ const Header = () => {
                 className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
               >
                 <PlusCircle className="h-4 w-4" />
-                Tambah Masjid
+                Tambah Tempat Solat
               </Link>
               <Link
                 to="/profile"
