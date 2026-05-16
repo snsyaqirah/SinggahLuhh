@@ -86,58 +86,58 @@ export interface Badge {
   name: string;
   description: string;
   icon: string;
-  requirement_type: string;
-  requirement_value: number;
+  requirementType: string;
+  requirementValue: number;
 }
 
 export interface UserBadge {
   id: string;
-  user_id: string;
+  userId: string;
   badge: Badge;
-  earned_at: string;
+  earnedAt: string;
 }
 
 export interface UserStats {
-  reputation_points: number;
-  streak_count: number;
-  longest_streak: number;
-  total_visits: number;
-  unique_masjids_visited: number;
-  badges_earned: number;
-  total_badges: number;
+  reputationPoints: number;
+  streakCount: number;
+  longestStreak: number;
+  totalVisits: number;
+  uniqueMasjidsVisited: number;
+  badgesEarned: number;
+  totalBadges: number;
   badges: UserBadge[];
-  visit_breakdown: Record<string, number>;
+  visitBreakdown: Record<string, number>;
 }
 
 // ── Visits ─────────────────────────────────────────────────────────
 
 export interface Visit {
   id: string;
-  user_id: string;
-  masjid_id: string;
-  visit_type: VisitType;
-  visit_date: string;
-  distance_meters: number | null;
-  created_at: string;
-  masjid_name: string | null;
+  userId: string;
+  masjidId: string;
+  visitType: VisitType;
+  visitDate: string;
+  distanceMeters: number | null;
+  createdAt: string;
+  masjidName: string | null;
 }
 
 export interface VisitHistory {
   visits: Visit[];
-  total_visits: number;
-  current_streak: number;
-  longest_streak: number;
-  unique_masjids: number;
-  favorite_masjid: string | null;
+  totalVisits: number;
+  currentStreak: number;
+  longestStreak: number;
+  uniqueMasjids: number;
+  favoriteMasjid: string | null;
 }
 
 export interface CheckInResult {
   message: string;
-  visit_id: string;
-  streak_count: number;
-  points_earned: number;
-  badges_unlocked: string[];
-  distance_meters: number;
+  visitId: string;
+  streakCount: number;
+  pointsEarned: number;
+  badgesUnlocked: string[];
+  distanceMeters: number;
 }
 
 // ── Reports ──────────────────────────────────────────────────────

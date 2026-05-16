@@ -49,7 +49,7 @@ const TrackingDashboard = () => {
   const s = stats as UserStats | undefined;
   const h = history as VisitHistory | undefined;
 
-  const visitDates = new Set((h?.visits ?? []).map((v: Visit) => v.visit_date?.split("T")[0]));
+  const visitDates = new Set((h?.visits ?? []).map((v: Visit) => v.visitDate?.split("T")[0]));
 
   // Longest streak (computed client-side from visit dates)
   const longestStreak = (() => {
@@ -70,7 +70,7 @@ const TrackingDashboard = () => {
 
   // Visit type breakdown
   const visitTypeCounts = (h?.visits ?? []).reduce((acc: Record<string, number>, v: Visit) => {
-    acc[v.visit_type] = (acc[v.visit_type] ?? 0) + 1;
+    acc[v.visitType] = (acc[v.visitType] ?? 0) + 1;
     return acc;
   }, {});
   const totalVisits = Object.values(visitTypeCounts).reduce((a, b) => a + b, 0);
@@ -128,11 +128,11 @@ const TrackingDashboard = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 md:grid-cols-5 mb-8">
               {[
-                { label: "Jumlah Kunjungan",  value: s?.total_visits ?? 0,     icon: TrendingUp, color: "text-primary" },
-                { label: "Masjid Dikunjungi",  value: h?.unique_masjids ?? 0,  icon: MapPin,     color: "text-accent" },
-                { label: "Streak Sekarang",    value: h?.current_streak ?? 0,  icon: Calendar,   color: "text-primary" },
-                { label: "Streak Terpanjang",  value: longestStreak,           icon: Trophy,     color: "text-accent" },
-                { label: "Mata Reputasi",      value: s?.reputation_points ?? 0, icon: Trophy,   color: "text-primary" },
+                { label: "Jumlah Kunjungan",  value: s?.totalVisits ?? 0,          icon: TrendingUp, color: "text-primary" },
+                { label: "Masjid Dikunjungi",  value: h?.uniqueMasjids ?? 0,      icon: MapPin,     color: "text-accent" },
+                { label: "Streak Sekarang",    value: h?.currentStreak ?? 0,      icon: Calendar,   color: "text-primary" },
+                { label: "Streak Terpanjang",  value: longestStreak,              icon: Trophy,     color: "text-accent" },
+                { label: "Mata Reputasi",      value: s?.reputationPoints ?? 0,   icon: Trophy,     color: "text-primary" },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border bg-card p-5">
                   <stat.icon className={`h-5 w-5 ${stat.color} mb-2`} />
@@ -149,7 +149,7 @@ const TrackingDashboard = () => {
                   <Trophy className="h-5 w-5 text-accent" />
                   <h3 className="font-serif text-lg font-semibold">Pasport Masjid</h3>
                   <span className="ml-auto text-sm text-muted-foreground">
-                    {s.badges_earned}/{s.total_badges} badges
+                    {s.badgesEarned}/{s.totalBadges} badges
                   </span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -268,12 +268,12 @@ const TrackingDashboard = () => {
             </div>
 
             {/* Favourite Masjid */}
-            {h?.favorite_masjid && (
+            {h?.favoriteMasjid && (
               <div className="rounded-2xl border bg-card p-5 mb-8 flex items-center gap-3">
                 <Moon className="h-8 w-8 text-accent" />
                 <div>
                   <p className="text-xs text-muted-foreground">Masjid Kegemaran</p>
-                  <p className="font-semibold text-foreground">{h.favorite_masjid}</p>
+                  <p className="font-semibold text-foreground">{h.favoriteMasjid}</p>
                 </div>
               </div>
             )}
@@ -297,15 +297,15 @@ const TrackingDashboard = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-primary">
-                          {visit.visit_type?.charAt(0)?.toUpperCase() ?? "?"}
+                          {visit.visitType?.charAt(0)?.toUpperCase() ?? "?"}
                         </div>
                         <div>
-                          <p className="font-medium text-foreground text-sm">{visit.masjid_name ?? "Masjid"}</p>
-                          <p className="text-xs text-muted-foreground">{visit.visit_date?.split("T")[0]}</p>
+                          <p className="font-medium text-foreground text-sm">{visit.masjidName ?? "Masjid"}</p>
+                          <p className="text-xs text-muted-foreground">{visit.visitDate?.split("T")[0]}</p>
                         </div>
                       </div>
                       <Badge variant="secondary" className="font-sans text-xs">
-                        {VISIT_TYPE_LABELS[visit.visit_type] ?? visit.visit_type}
+                        {VISIT_TYPE_LABELS[visit.visitType] ?? visit.visitType}
                       </Badge>
                     </div>
                   ))}

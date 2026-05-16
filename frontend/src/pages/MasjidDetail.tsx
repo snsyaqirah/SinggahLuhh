@@ -346,10 +346,10 @@ const MasjidDetail = () => {
             masjidId: masjid!.id, visitType,
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
-          }) as { streak_count?: number; points_earned?: number };
+          }) as { streakCount?: number; pointsEarned?: number };
           toast({
             title: `Check-in berjaya! 🎉`,
-            description: `+${result.points_earned ?? 0} mata. Streak: ${result.streak_count ?? 0} hari.`,
+            description: `+${result.pointsEarned ?? 0} mata. Streak: ${result.streakCount ?? 0} hari.`,
           });
           queryClient.invalidateQueries({ queryKey: ["checkins"] });
         } catch (e) {
